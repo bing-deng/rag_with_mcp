@@ -1,0 +1,143 @@
+```mermaid
+
+graph TB
+    %% Phase 1: 项目准备
+    subgraph Phase1[Phase 1: 项目准备与规划 2-4周]
+        A1[需求调研分析] --> A2[技术架构设计]
+        A2 --> A3[硬件资源规划]
+        A3 --> A4[团队组建培训]
+    end
+    
+    %% Phase 2: 环境搭建
+    subgraph Phase2[Phase 2: 环境搭建 3-4周]
+        B1[基础设施部署] --> B2[Docker容器化环境]
+        B2 --> B3[数据库集群搭建]
+        B3 --> B4[本地LLM模型部署]
+        B4 --> B5[监控日志系统]
+    end
+    
+    %% Phase 3: 数据知识库构建
+    subgraph Phase3[Phase 3: 数据知识库构建 4-6周]
+        C1[数据源识别盘点] --> C2[数据采集清洗]
+        C2 --> C3[文档解析处理]
+        C3 --> C4[智能分块策略]
+        C4 --> C5[向量化嵌入]
+        C5 --> C6[向量数据库存储]
+        C6 --> C7[知识图谱构建]
+    end
+    
+    %% Phase 4: 系统开发
+    subgraph Phase4[Phase 4: 系统开发 6-8周]
+        D1[后端API开发] --> D2[MCP连接器开发]
+        D2 --> D3[检索引擎优化]
+        D3 --> D4[LLM生成服务]
+        D4 --> D5[权限管理系统]
+        D5 --> D6[前端界面开发]
+    end
+    
+    %% Phase 5: 测试优化
+    subgraph Phase5[Phase 5: 测试与优化 3-4周]
+        E1[功能测试] --> E2[性能压力测试]
+        E2 --> E3[安全渗透测试]
+        E3 --> E4[用户验收测试]
+        E4 --> E5[系统调优]
+    end
+    
+    %% Phase 6: 上线部署
+    subgraph Phase6[Phase 6: 上线部署 1-2周]
+        F1[生产环境准备] --> F2[数据迁移]
+        F2 --> F3[灰度发布]
+        F3 --> F4[全量上线]
+        F4 --> F5[用户培训]
+    end
+    
+    %% Phase 7: 运维监控
+    subgraph Phase7[Phase 7: 运维与维护 持续]
+        G1[系统监控] --> G2[性能优化]
+        G2 --> G3[数据更新]
+        G3 --> G4[模型微调]
+        G4 --> G5[功能迭代]
+        G5 --> G1
+    end
+    
+    %% 流程连接
+    Phase1 --> Phase2
+    Phase2 --> Phase3
+    Phase3 --> Phase4
+    Phase4 --> Phase5
+    Phase5 --> Phase6
+    Phase6 --> Phase7
+    
+    %% 系统架构层次
+    subgraph Architecture[系统总体架构]
+        subgraph Frontend[前端层]
+            UI[Web界面]
+            Mobile[移动端]
+            API_Gateway[API网关]
+        end
+        
+        subgraph Backend[后端服务层]
+            Search_Service[检索服务]
+            LLM_Service[LLM生成服务]
+            Auth_Service[认证授权服务]
+            MCP_Manager[MCP管理器]
+        end
+        
+        subgraph Data[数据存储层]
+            Vector_DB[向量数据库<br/>Weaviate]
+            Meta_DB[元数据库<br/>PostgreSQL]
+            File_Storage[文件存储<br/>MinIO]
+            Cache[缓存层<br/>Redis]
+        end
+        
+        subgraph Infrastructure[基础设施层]
+            GPU_Server[GPU推理服务器]
+            CPU_Server[CPU计算服务器]
+            Storage_Server[存储服务器]
+            Network[网络设备]
+        end
+    end
+    
+    %% MCP集成详图
+    subgraph MCP_Detail[MCP集成架构]
+        MCP_Core[MCP核心服务] --> Doc_Connector[文档连接器]
+        MCP_Core --> DB_Connector[数据库连接器]
+        MCP_Core --> API_Connector[API连接器]
+        MCP_Core --> Tool_Connector[工具连接器]
+        
+        Doc_Connector --> SharePoint[SharePoint]
+        Doc_Connector --> Wiki[企业Wiki]
+        Doc_Connector --> FileSystem[文件系统]
+        
+        DB_Connector --> PostgreSQL[PostgreSQL]
+        DB_Connector --> Oracle[Oracle]
+        DB_Connector --> MongoDB[MongoDB]
+        
+        API_Connector --> CRM[CRM系统]
+        API_Connector --> ERP[ERP系统]
+        API_Connector --> External_API[外部API]
+    end
+    
+    %% 数据流向
+    subgraph DataFlow[数据处理流程]
+        Raw_Data[原始数据] --> Processing[数据预处理]
+        Processing --> Chunking[智能分块]
+        Chunking --> Embedding[向量化]
+        Embedding --> Storage[存储索引]
+        
+        User_Query[用户查询] --> Query_Processing[查询处理]
+        Query_Processing --> Retrieval[混合检索]
+        Retrieval --> Reranking[重排序]
+        Reranking --> Generation[LLM生成]
+        Generation --> Response[返回结果]
+    end
+    
+    style Phase1 fill:#e1f5fe
+    style Phase2 fill:#f3e5f5
+    style Phase3 fill:#e8f5e8
+    style Phase4 fill:#fff3e0
+    style Phase5 fill:#fce4ec
+    style Phase6 fill:#f1f8e9
+    style Phase7 fill:#fff8e1
+
+    ```
