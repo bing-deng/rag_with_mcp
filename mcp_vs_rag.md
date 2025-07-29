@@ -1,3 +1,6 @@
+<img width="967" height="606" alt="image" src="https://github.com/user-attachments/assets/33542cc2-710b-4d98-ab48-cbaee7268814" />
+
+```
 <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <style>
@@ -196,3 +199,4 @@
     <text x="670" y="770" class="tiny-text">データソース：ライブシステムAPI</text>
   </g>
 </svg>
+```
