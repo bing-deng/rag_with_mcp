@@ -60,6 +60,22 @@ services:
       - "etcd"
       - "minio"
 
+  web-ui:
+    container_name: milvus-web-ui
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - MILVUS_HOST=standalone
+      - MILVUS_PORT=19530
+    depends_on:
+      - standalone
+    volumes:
+      - .:/app
+    restart: unless-stopped
+
 networks:
   default:
     name: milvus 

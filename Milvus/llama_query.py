@@ -8,6 +8,10 @@ import json
 import time
 from typing import List, Dict, Optional
 from query_milvus import MilvusQueryEngine
+from model_manager import get_model_manager
+
+# 获取全局模型管理器
+model_manager = get_model_manager()
 
 # 尝试导入不同的 LLaMA 实现
 try:
@@ -220,9 +224,9 @@ class LLaMAQueryEngine:
             return f"❌ llama-cpp 生成失败: {e}"
     
     def generate_response(self, prompt: str, max_tokens: int = 500) -> str:
-        """生成回答"""
+        """生成回答 - 使用模型管理器"""
         if self.model_type == 'ollama':
-            return self._generate_with_ollama(prompt, max_tokens)
+            return model_manager.generate_with_ollama(prompt, self.model_name, max_tokens)
         elif self.model_type == 'transformers':
             return self._generate_with_transformers(prompt, max_tokens)
         elif self.model_type == 'llama_cpp':
@@ -230,19 +234,49 @@ class LLaMAQueryEngine:
         else:
             return "❌ 模型未初始化"
     
-    def rag_query(self, question: str, top_k: int = 5, max_tokens: int = 500) -> Dict:
+    def _detect_language(self, text: str) -> str:
+        """简单的语言检测"""
+        import re
+        
+        # 检测日语（平假名、片假名、汉字）
+        japanese_chars = re.search(r'[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]', text)
+        # 检测中文（汉字为主）
+        chinese_chars = re.search(r'[\u4E00-\u9FFF]', text)
+        # 检测英语（拉丁字母）
+        english_chars = re.search(r'[a-zA-Z]', text)
+        
+        # 优先级：如果有平假名/片假名就是日语
+        if re.search(r'[\u3040-\u309F\u30A0-\u30FF]', text):
+            return 'ja'
+        elif english_chars and not chinese_chars:
+            return 'en'
+        elif chinese_chars:
+            return 'zh'
+        else:
+            return 'en'  # 默认英语
+    
+    def rag_query(self, question: str, top_k: int = 10, max_tokens: int = 500) -> Dict:
         """RAG 查询：检索+生成"""
         print(f"🤖 RAG 查询: '{question}'")
         
-        # 1. 从 Milvus 检索相关内容
+        # 1. 从 Milvus 检索相关内容 - 增加检索数量以获得更丰富信息
         print("🔍 第一步：向量搜索检索相关内容...")
         search_results = self.milvus_engine.basic_search(question, top_k=top_k)
         
         if not search_results:
+            # 根据问题语言返回相应的错误消息
+            detected_lang = self._detect_language(question)
+            if detected_lang == 'ja':
+                error_msg = "申し訳ございませんが、ご質問にお答えできる関連する背景情報が見つかりませんでした。"
+            elif detected_lang == 'en':
+                error_msg = "Sorry, I couldn't find relevant background information to answer your question."
+            else:
+                error_msg = "抱歉，没有找到相关的背景信息来回答您的问题。"
+                
             return {
                 "question": question,
                 "retrieved_contexts": [],
-                "generated_answer": "抱歉，没有找到相关的背景信息来回答您的问题。",
+                "generated_answer": error_msg,
                 "sources": []
             }
         
@@ -260,21 +294,42 @@ class LLaMAQueryEngine:
                 "similarity": result['score']
             })
         
-        # 3. 构建 prompt
+        # 3. 检测语言并构建多语言 prompt
+        detected_lang = self._detect_language(question)
+        print(f"🌐 检测到语言: {detected_lang}")
         context_text = "\n\n".join(contexts)
         
-        prompt = f"""请基于以下背景信息回答用户的问题。如果背景信息中没有相关内容，请诚实地说明。
+        # 多语言系统提示 - 简化版
+        if detected_lang == 'ja':
+            prompt = f"""以下の情報から回答してください：
 
-背景信息：
 {context_text}
 
-用户问题：{question}
+質問：{question}
 
-请提供准确、有用的回答："""
+回答："""
+        elif detected_lang == 'en':
+            prompt = f"""Answer based on this information:
+
+{context_text}
+
+Question: {question}
+
+Answer:"""
+        else:  # 默认中文
+            prompt = f"""根据以下信息回答：
+
+{context_text}
+
+问题：{question}
+
+回答："""
 
         # 4. 生成回答
         print("🤖 第二步：LLaMA 生成智能回答...")
-        generated_answer = self.generate_response(prompt, max_tokens)
+        # 进一步减少最大令牌数以大幅加快生成速度
+        optimized_max_tokens = min(max_tokens, 80)  # 大幅限制在80个令牌
+        generated_answer = self.generate_response(prompt, optimized_max_tokens)
         
         return {
             "question": question,

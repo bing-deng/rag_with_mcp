@@ -39,4 +39,8 @@ urllib3>=1.26.0
 # tqdm>=4.62.0
 
 # 可选：如果需要处理JSON和配置文件
-# pyyaml>=6.0 
+# pyyaml>=6.0
+
+# Web UI 依赖
+flask>=2.3.0
+flask-cors>=4.0.0 

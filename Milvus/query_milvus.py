@@ -8,6 +8,10 @@ import json
 import time
 from typing import List, Dict, Optional, Tuple
 from pymilvus import connections, Collection, utility
+from model_manager import get_model_manager
+
+# 获取全局模型管理器
+model_manager = get_model_manager()
 
 # 尝试导入向量化模型
 try:
@@ -27,13 +31,8 @@ class MilvusQueryEngine:
         self.collection = None
         self.dimension = 384
         
-        # 初始化向量化模型
-        if HAS_SENTENCE_TRANSFORMERS:
-            print("🔧 加载语义向量化模型...")
-            self.model = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
-            print("✅ 语义模型加载完成")
-        else:
-            self.model = None
+        # 使用全局模型管理器，避免重复加载
+        self.model = None  # 不再在这里初始化模型
     
     def connect(self):
         """连接到 Milvus"""
@@ -57,13 +56,8 @@ class MilvusQueryEngine:
             return False
     
     def text_to_vector(self, text: str) -> List[float]:
-        """将文本转换为向量"""
-        if HAS_SENTENCE_TRANSFORMERS and self.model:
-            embedding = self.model.encode(text, normalize_embeddings=True)
-            return embedding.tolist()
-        else:
-            print("⚠️  无法进行向量化，请安装 sentence-transformers")
-            return None
+        """将文本转换为向量 - 使用全局模型管理器"""
+        return model_manager.text_to_vector(text)
     
     def basic_search(self, query: str, top_k: int = 5) -> List[Dict]:
         """基础向量搜索"""
@@ -199,36 +193,61 @@ class MilvusQueryEngine:
                 "dimension": self.dimension
             }
             
-            # 获取内容类型分布
-            content_types = self.collection.query(
-                expr="id >= 0",
-                output_fields=["content_type"],
-                limit=10000  # 获取更多记录来统计
-            )
+            # 首先检查集合schema，确定可用字段
+            schema = self.collection.schema
+            available_fields = [field.name for field in schema.fields]
             
-            type_counts = {}
-            for item in content_types:
-                ct = item.get('content_type', 'unknown')
-                type_counts[ct] = type_counts.get(ct, 0) + 1
+            # 只查询存在的字段
+            query_fields = []
+            if "content_type" in available_fields:
+                query_fields.append("content_type")
+            if "url" in available_fields:
+                query_fields.append("url")
+            if "title" in available_fields:
+                query_fields.append("title")
             
-            stats["content_type_distribution"] = type_counts
+            if not query_fields:
+                # 如果没有这些字段，只返回基础统计
+                return stats
             
-            # 获取URL分布
-            urls = self.collection.query(
-                expr="id >= 0",
-                output_fields=["url"],
-                limit=10000
-            )
+            # 获取内容类型分布（如果字段存在）
+            if "content_type" in query_fields:
+                try:
+                    content_types = self.collection.query(
+                        expr="id >= 0",
+                        output_fields=["content_type"],
+                        limit=10000
+                    )
+                    
+                    type_counts = {}
+                    for item in content_types:
+                        ct = item.get('content_type', 'unknown')
+                        type_counts[ct] = type_counts.get(ct, 0) + 1
+                    
+                    stats["content_type_distribution"] = type_counts
+                except Exception as e:
+                    print(f"获取content_type统计失败: {e}")
             
-            url_counts = {}
-            for item in urls:
-                url = item.get('url', 'unknown')
-                # 简化URL显示
-                if len(url) > 50:
-                    url = url[:50] + "..."
-                url_counts[url] = url_counts.get(url, 0) + 1
-            
-            stats["url_distribution"] = url_counts
+            # 获取URL分布（如果字段存在）
+            if "url" in query_fields:
+                try:
+                    urls = self.collection.query(
+                        expr="id >= 0",
+                        output_fields=["url"],
+                        limit=10000
+                    )
+                    
+                    url_counts = {}
+                    for item in urls:
+                        url = item.get('url', 'unknown')
+                        # 简化URL显示
+                        if len(url) > 50:
+                            url = url[:50] + "..."
+                        url_counts[url] = url_counts.get(url, 0) + 1
+                    
+                    stats["url_distribution"] = url_counts
+                except Exception as e:
+                    print(f"获取url统计失败: {e}")
             
             return stats
             

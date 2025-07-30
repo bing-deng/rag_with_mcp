@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能查询系统 Web UI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- 标题 -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">🧠 智能查询系统</h1>
+            <p class="text-gray-600">支持向量搜索和AI智能问答</p>
+        </div>
+
+        <!-- 集合选择 -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">📋 选择数据集合</h2>
+            <div class="flex flex-wrap gap-2" id="collections-container">
+                <div class="text-gray-500">正在加载集合...</div>
+            </div>
+            <div class="mt-4 text-sm text-gray-600" id="collection-info"></div>
+        </div>
+
+        <!-- 查询模式选择 -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">🎯 查询模式</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <button onclick="setMode('vector')" id="vector-mode-btn" 
+                        class="p-4 border-2 border-blue-200 rounded-lg text-left hover:border-blue-400 transition-colors">
+                    <div class="text-lg font-medium text-blue-600">🔍 向量搜索</div>
+                    <div class="text-sm text-gray-600">快速精确的相似性检索</div>
+                </button>
+                <button onclick="setMode('llama')" id="llama-mode-btn"
+                        class="p-4 border-2 border-green-200 rounded-lg text-left hover:border-green-400 transition-colors">
+                    <div class="text-lg font-medium text-green-600">🤖 AI问答</div>
+                    <div class="text-sm text-gray-600">自然语言智能对话</div>
+                </button>
+            </div>
+        </div>
+
+        <!-- 查询界面 -->
+        <div class="bg-white rounded-lg shadow-md p-6" id="query-interface" style="display: none;">
+            <!-- 向量搜索界面 -->
+            <div id="vector-search" style="display: none;">
+                <h3 class="text-lg font-semibold mb-4">🔍 向量搜索</h3>
+                <div class="space-y-4">
+                    <div>
+                        <input type="text" id="vector-query" placeholder="输入搜索关键词..."
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">内容类型</label>
+                            <select id="content-type" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                <option value="">所有类型</option>
+                                <option value="paragraph">段落</option>
+                                <option value="heading_h1">一级标题</option>
+                                <option value="heading_h2">二级标题</option>
+                                <option value="heading_h3">三级标题</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">最小字数</label>
+                            <input type="number" id="min-words" placeholder="如: 10"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">结果数量</label>
+                            <select id="top-k" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                <option value="5">5条</option>
+                                <option value="10">10条</option>
+                                <option value="20">20条</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button onclick="vectorSearch()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors">
+                        开始搜索
+                    </button>
+                </div>
+            </div>
+
+            <!-- AI问答界面 -->
+            <div id="llama-chat" style="display: none;">
+                <h3 class="text-lg font-semibold mb-4">🤖 AI智能问答</h3>
+                <div class="space-y-4">
+                    <div class="h-96 border border-gray-300 rounded-lg p-4 overflow-y-auto bg-gray-50" id="chat-history">
+                        <div class="text-gray-500 text-center">开始您的智能问答...</div>
+                    </div>
+                    <div class="flex gap-2">
+                        <input type="text" id="chat-input" placeholder="请输入您的问题..."
+                               class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                               onkeypress="if(event.key==='Enter') chatQuery()">
+                        <button onclick="chatQuery()" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-6 rounded-lg transition-colors">
+                            发送
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 结果显示 -->
+        <div class="mt-6 bg-white rounded-lg shadow-md p-6" id="results-container" style="display: none;">
+            <h3 class="text-lg font-semibold mb-4">📊 查询结果</h3>
+            <div id="results-content"></div>
+        </div>
+
+        <!-- 加载指示器 -->
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center" id="loading" style="display: none;">
+            <div class="bg-white rounded-lg p-6 text-center">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                <div class="text-lg font-medium">处理中...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentCollection = null;
+        let currentMode = null;
+
+        // 页面加载时获取集合列表
+        window.onload = function() {
+            loadCollections();
+        };
+
+        // 加载集合列表
+        async function loadCollections() {
+            try {
+                const response = await axios.get('/api/collections');
+                const collections = response.data.collections;
+                const container = document.getElementById('collections-container');
+                
+                if (collections.length === 0) {
+                    container.innerHTML = '<div class="text-red-500">未找到可用集合</div>';
+                    return;
+                }
+
+                container.innerHTML = collections.map(name => 
+                    `<button onclick="selectCollection('${name}')" 
+                             class="collection-btn px-4 py-2 border-2 border-gray-200 rounded-lg hover:border-blue-400 transition-colors"
+                             data-collection="${name}">${name}</button>`
+                ).join('');
+
+                // 自动选择第一个集合
+                if (collections.length === 1) {
+                    selectCollection(collections[0]);
+                }
+            } catch (error) {
+                console.error('加载集合失败:', error);
+                document.getElementById('collections-container').innerHTML = 
+                    '<div class="text-red-500">加载集合失败</div>';
+            }
+        }
+
+        // 选择集合
+        async function selectCollection(collectionName) {
+            currentCollection = collectionName;
+            
+            // 更新UI
+            document.querySelectorAll('.collection-btn').forEach(btn => {
+                btn.classList.remove('border-blue-500', 'bg-blue-50');
+                btn.classList.add('border-gray-200');
+            });
+            document.querySelector(`[data-collection="${collectionName}"]`).classList.add('border-blue-500', 'bg-blue-50');
+
+            // 获取集合信息
+            try {
+                const response = await axios.get(`/api/collections/${collectionName}/stats`);
+                const stats = response.data;
+                document.getElementById('collection-info').innerHTML = 
+                    `已选择: <strong>${collectionName}</strong> | 记录数: ${stats.total_records} | 维度: ${stats.dimension}`;
+            } catch (error) {
+                console.error('获取集合信息失败:', error);
+            }
+        }
+
+        // 设置查询模式
+        function setMode(mode) {
+            if (!currentCollection) {
+                alert('请先选择一个集合');
+                return;
+            }
+
+            currentMode = mode;
+            
+            // 更新模式按钮样式
+            document.getElementById('vector-mode-btn').classList.remove('border-blue-500', 'bg-blue-50');
+            document.getElementById('llama-mode-btn').classList.remove('border-green-500', 'bg-green-50');
+            
+            if (mode === 'vector') {
+                document.getElementById('vector-mode-btn').classList.add('border-blue-500', 'bg-blue-50');
+                document.getElementById('vector-search').style.display = 'block';
+                document.getElementById('llama-chat').style.display = 'none';
+            } else {
+                document.getElementById('llama-mode-btn').classList.add('border-green-500', 'bg-green-50');
+                document.getElementById('vector-search').style.display = 'none';
+                document.getElementById('llama-chat').style.display = 'block';
+            }
+            
+            document.getElementById('query-interface').style.display = 'block';
+            document.getElementById('results-container').style.display = 'none';
+        }
+
+        // 向量搜索
+        async function vectorSearch() {
+            const query = document.getElementById('vector-query').value.trim();
+            if (!query) {
+                alert('请输入搜索内容');
+                return;
+            }
+
+            showLoading(true);
+            
+            try {
+                const params = {
+                    query: query,
+                    collection_name: currentCollection,
+                    content_type: document.getElementById('content-type').value || null,
+                    min_words: document.getElementById('min-words').value || null,
+                    top_k: parseInt(document.getElementById('top-k').value)
+                };
+
+                const response = await axios.post('/api/vector-search', params);
+                displayVectorResults(response.data.results);
+            } catch (error) {
+                console.error('搜索失败:', error);
+                alert('搜索失败: ' + (error.response?.data?.error || error.message));
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // AI问答
+        async function chatQuery() {
+            const question = document.getElementById('chat-input').value.trim();
+            if (!question) return;
+
+            // 添加用户消息到聊天历史
+            addChatMessage('user', question);
+            document.getElementById('chat-input').value = '';
+
+            showLoading(true);
+
+            try {
+                const response = await axios.post('/api/llama-chat', {
+                    question: question,
+                    collection_name: currentCollection
+                });
+
+                addChatMessage('assistant', response.data.answer, response.data.sources);
+            } catch (error) {
+                console.error('AI问答失败:', error);
+                addChatMessage('assistant', '抱歉，AI问答服务暂时不可用: ' + (error.response?.data?.error || error.message));
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // 添加聊天消息
+        function addChatMessage(role, content, sources = null) {
+            const chatHistory = document.getElementById('chat-history');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `mb-4 ${role === 'user' ? 'text-right' : 'text-left'}`;
+            
+            let html = `
+                <div class="inline-block max-w-3/4 p-3 rounded-lg ${
+                    role === 'user' 
+                        ? 'bg-blue-600 text-white' 
+                        : 'bg-gray-200 text-gray-800'
+                }">
+                    <div class="font-medium mb-1">${role === 'user' ? '🙋 您' : '🤖 AI助手'}</div>
+                    <div>${content}</div>
+            `;
+            
+            if (sources && sources.length > 0) {
+                html += '<div class="mt-2 text-xs opacity-75"><strong>参考来源:</strong><br>';
+                sources.forEach((source, i) => {
+                    const title = source.title.substring(0, 50) + (source.title.length > 50 ? '...' : '');
+                    const url = source.url || '#';
+                    if (url && url !== '#' && url !== '') {
+                        html += `${i+1}. [${source.content_type}] <a href="${url}" target="_blank" class="text-blue-300 hover:text-blue-100 underline">${title}</a> (${source.similarity.toFixed(3)})<br>`;
+                    } else {
+                        html += `${i+1}. [${source.content_type}] ${title} (${source.similarity.toFixed(3)})<br>`;
+                    }
+                });
+                html += '</div>';
+            }
+            
+            html += '</div>';
+            messageDiv.innerHTML = html;
+            
+            chatHistory.appendChild(messageDiv);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+            
+            // 清空占位符
+            const placeholder = chatHistory.querySelector('.text-gray-500');
+            if (placeholder) placeholder.remove();
+        }
+
+        // 显示向量搜索结果
+        function displayVectorResults(results) {
+            const container = document.getElementById('results-content');
+            
+            if (!results || results.length === 0) {
+                container.innerHTML = '<div class="text-gray-500">未找到相关结果</div>';
+            } else {
+                container.innerHTML = results.map((result, i) => `
+                    <div class="border-b border-gray-200 pb-4 mb-4 last:border-b-0">
+                        <div class="flex justify-between items-start mb-2">
+                            <h4 class="font-medium text-lg">${i + 1}. ${result.title || '无标题'}</h4>
+                            <span class="text-sm text-gray-500">相似度: ${result.distance?.toFixed(3) || 'N/A'}</span>
+                        </div>
+                        <div class="text-sm text-gray-600 mb-2">
+                            类型: ${result.content_type || 'N/A'} | 
+                            URL: ${result.url && result.url !== '#' && result.url !== '' ? 
+                                `<a href="${result.url}" target="_blank" class="text-blue-600 hover:underline">${result.url}</a>` : 
+                                'N/A'}
+                        </div>
+                        <div class="text-gray-800">${result.content?.substring(0, 300) || '无内容'}${result.content?.length > 300 ? '...' : ''}</div>
+                    </div>
+                `).join('');
+            }
+            
+            document.getElementById('results-container').style.display = 'block';
+        }
+
+        // 显示/隐藏加载指示器
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'flex' : 'none';
+        }
+    </script>
+</body>
+</html>
