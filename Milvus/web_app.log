@@ -22,13 +22,136 @@ API文档:
  * Restarting with stat
  * Debugger is active!
  * Debugger PIN: 119-540-104
-127.0.0.1 - - [30/Jul/2025 21:04:58] "GET /health HTTP/1.1" 200 -
-127.0.0.1 - - [30/Jul/2025 21:05:04] "GET / HTTP/1.1" 200 -
-127.0.0.1 - - [30/Jul/2025 21:05:04] "GET /api/collections HTTP/1.1" 200 -
-127.0.0.1 - - [30/Jul/2025 21:05:10] "GET /api/collections/kandenko_website_smart/stats HTTP/1.1" 200 -
+127.0.0.1 - - [30/Jul/2025 21:16:16] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [30/Jul/2025 21:16:17] "GET /api/collections HTTP/1.1" 200 -
+127.0.0.1 - - [30/Jul/2025 21:16:18] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [30/Jul/2025 21:16:21] "GET /api/collections/advanced_text_search/stats HTTP/1.1" 200 -
 /Users/dengbingbing/Documents/startup-deng/rag_with_mcp/Milvus/web_env/lib/python3.13/site-packages/torch/nn/modules/module.py:1762: FutureWarning: `encoder_attention_mask` is deprecated and will be removed in version 4.55.0 for `BertSdpaSelfAttention.forward`.
   return forward_call(*args, **kwargs)
-127.0.0.1 - - [30/Jul/2025 21:05:31] "POST /api/llama-chat HTTP/1.1" 200 -
+2025-07-30 21:16:33,209 [ERROR][handler]: RPC error: [search], <MilvusException: (code=65535, message=field content_type not exist)>, <Time:{'RPC start': '2025-07-30 21:16:33.205328', 'RPC error': '2025-07-30 21:16:33.208991'}> (decorators.py:140)
+127.0.0.1 - - [30/Jul/2025 21:16:33] "POST /api/llama-chat HTTP/1.1" 200 -
 /Users/dengbingbing/Documents/startup-deng/rag_with_mcp/Milvus/web_env/lib/python3.13/site-packages/torch/nn/modules/module.py:1762: FutureWarning: `encoder_attention_mask` is deprecated and will be removed in version 4.55.0 for `BertSdpaSelfAttention.forward`.
   return forward_call(*args, **kwargs)
-127.0.0.1 - - [30/Jul/2025 21:05:59] "POST /api/llama-chat HTTP/1.1" 200 -
+2025-07-30 21:16:40,789 [ERROR][handler]: RPC error: [search], <MilvusException: (code=65535, message=field content_type not exist)>, <Time:{'RPC start': '2025-07-30 21:16:40.786093', 'RPC error': '2025-07-30 21:16:40.789126'}> (decorators.py:140)
+127.0.0.1 - - [30/Jul/2025 21:16:40] "POST /api/llama-chat HTTP/1.1" 200 -
+127.0.0.1 - - [30/Jul/2025 21:18:49] "GET /api/collections HTTP/1.1" 200 -
+127.0.0.1 - - [30/Jul/2025 21:18:54] "GET /api/collections HTTP/1.1" 200 -
+ * Detected change in '/Users/dengbingbing/Documents/startup-deng/rag_with_mcp/Milvus/query_milvus.py', reloading
+🔧 初始化模型管理器 (带缓存)...
+✅ 发现 transformers 库，支持 Hugging Face LLaMA 模型
+✅ 支持 Ollama 本地 LLaMA 服务
+🔧 初始化Milvus连接池...
+🚀 启动智能查询系统 Web 服务
+============================================================
+Web UI: http://localhost:5001
+API文档:
+  GET  /api/collections - 获取所有集合
+  GET  /api/collections/<name>/stats - 集合统计
+  POST /api/vector-search - 向量搜索
+  POST /api/llama-chat - AI问答
+  GET  /health - 健康检查
+------------------------------------------------------------
+✅ 成功连接到 Milvus: localhost:19530
+✅ 集合 advanced_text_search 已加载
+📊 获取统计信息...
+🔌 已断开连接
+📡 创建新连接: advanced_text_search
+✅ 成功连接到 Milvus: localhost:19530
+✅ 集合 advanced_text_search 已加载
+✅ Ollama 服务可用，可用模型: ['llama3.2:3b', 'deepseek-r1:14b']
+✅ 模型 llama3.2:3b 已就绪
+🤖 RAG 查询: '関電工公司信息'
+🔍 第一步：向量搜索检索相关内容...
+🔍 基础搜索: '関電工公司信息'
+🔧 加载语义向量化模型 (仅此一次)...
+🔥 预热向量模型...
+✅ 语义模型加载完成并缓存
+❌ 搜索失败: <MilvusException: (code=65535, message=field content_type not exist)>
+✅ Ollama 服务可用，可用模型: ['llama3.2:3b', 'deepseek-r1:14b']
+✅ 模型 llama3.2:3b 已就绪
+🤖 RAG 查询: '公司历史'
+🔍 第一步：向量搜索检索相关内容...
+🔍 基础搜索: '公司历史'
+❌ 搜索失败: <MilvusException: (code=65535, message=field content_type not exist)>
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 119-540-104
+ * Detected change in '/Users/dengbingbing/Documents/startup-deng/rag_with_mcp/Milvus/query_milvus.py', reloading
+🔧 初始化模型管理器 (带缓存)...
+✅ 发现 transformers 库，支持 Hugging Face LLaMA 模型
+✅ 支持 Ollama 本地 LLaMA 服务
+🔧 初始化Milvus连接池...
+🚀 启动智能查询系统 Web 服务
+============================================================
+Web UI: http://localhost:5001
+API文档:
+  GET  /api/collections - 获取所有集合
+  GET  /api/collections/<name>/stats - 集合统计
+  POST /api/vector-search - 向量搜索
+  POST /api/llama-chat - AI问答
+  GET  /health - 健康检查
+------------------------------------------------------------
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 119-540-104
+ * Detected change in '/Users/dengbingbing/Documents/startup-deng/rag_with_mcp/Milvus/query_milvus.py', reloading
+🔧 初始化模型管理器 (带缓存)...
+✅ 发现 transformers 库，支持 Hugging Face LLaMA 模型
+✅ 支持 Ollama 本地 LLaMA 服务
+🔧 初始化Milvus连接池...
+🚀 启动智能查询系统 Web 服务
+============================================================
+Web UI: http://localhost:5001
+API文档:
+  GET  /api/collections - 获取所有集合
+  GET  /api/collections/<name>/stats - 集合统计
+  POST /api/vector-search - 向量搜索
+  POST /api/llama-chat - AI问答
+  GET  /health - 健康检查
+------------------------------------------------------------
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 119-540-104
+ * Detected change in '/Users/dengbingbing/Documents/startup-deng/rag_with_mcp/Milvus/query_milvus.py', reloading
+🔧 初始化模型管理器 (带缓存)...
+✅ 发现 transformers 库，支持 Hugging Face LLaMA 模型
+✅ 支持 Ollama 本地 LLaMA 服务
+🔧 初始化Milvus连接池...
+🚀 启动智能查询系统 Web 服务
+============================================================
+Web UI: http://localhost:5001
+API文档:
+  GET  /api/collections - 获取所有集合
+  GET  /api/collections/<name>/stats - 集合统计
+  POST /api/vector-search - 向量搜索
+  POST /api/llama-chat - AI问答
+  GET  /health - 健康检查
+------------------------------------------------------------
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 119-540-104
+ * Detected change in '/Users/dengbingbing/Documents/startup-deng/rag_with_mcp/Milvus/query_milvus.py', reloading
+🔧 初始化模型管理器 (带缓存)...
+✅ 发现 transformers 库，支持 Hugging Face LLaMA 模型
+✅ 支持 Ollama 本地 LLaMA 服务
+🔧 初始化Milvus连接池...
+🚀 启动智能查询系统 Web 服务
+============================================================
+Web UI: http://localhost:5001
+API文档:
+  GET  /api/collections - 获取所有集合
+  GET  /api/collections/<name>/stats - 集合统计
+  POST /api/vector-search - 向量搜索
+  POST /api/llama-chat - AI问答
+  GET  /health - 健康检查
+------------------------------------------------------------
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 119-540-104
+127.0.0.1 - - [30/Jul/2025 21:19:54] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [30/Jul/2025 21:20:11] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [30/Jul/2025 21:20:12] "GET /api/collections HTTP/1.1" 200 -
+127.0.0.1 - - [30/Jul/2025 21:20:13] "GET /api/collections/kandenko_website_smart/stats HTTP/1.1" 200 -
+/Users/dengbingbing/Documents/startup-deng/rag_with_mcp/Milvus/web_env/lib/python3.13/site-packages/torch/nn/modules/module.py:1762: FutureWarning: `encoder_attention_mask` is deprecated and will be removed in version 4.55.0 for `BertSdpaSelfAttention.forward`.
+  return forward_call(*args, **kwargs)
+127.0.0.1 - - [30/Jul/2025 21:20:33] "POST /api/llama-chat HTTP/1.1" 200 -

@@ -34,6 +34,22 @@ class MilvusQueryEngine:
         # 使用全局模型管理器，避免重复加载
         self.model = None  # 不再在这里初始化模型
     
+    def _get_output_fields(self):
+        """动态获取输出字段列表"""
+        if not self.collection:
+            return ["url", "title", "content"]
+            
+        available_fields = [field.name for field in self.collection.schema.fields]
+        output_fields = ["url", "title", "content"]
+        
+        # 添加可选字段（如果存在）
+        optional_fields = ["content_type", "word_count", "timestamp", "category"]
+        for field in optional_fields:
+            if field in available_fields:
+                output_fields.append(field)
+        
+        return output_fields
+    
     def connect(self):
         """连接到 Milvus"""
         try:
@@ -78,7 +94,7 @@ class MilvusQueryEngine:
                 "embedding",
                 search_params,
                 limit=top_k,
-                output_fields=["url", "title", "content", "content_type", "word_count", "timestamp"]
+                output_fields=self._get_output_fields()
             )
             
             search_results = []
@@ -90,9 +106,9 @@ class MilvusQueryEngine:
                         "url": hit.entity.get("url"),
                         "title": hit.entity.get("title"),
                         "content": hit.entity.get("content"),
-                        "content_type": hit.entity.get("content_type"),
-                        "word_count": hit.entity.get("word_count"),
-                        "timestamp": hit.entity.get("timestamp")
+                        "content_type": hit.entity.get("content_type", "unknown"),
+                        "word_count": hit.entity.get("word_count", 0),
+                        "timestamp": hit.entity.get("timestamp", 0)
                     }
                     search_results.append(result)
             
@@ -139,7 +155,7 @@ class MilvusQueryEngine:
                 search_params,
                 limit=top_k,
                 expr=expr,
-                output_fields=["url", "title", "content", "content_type", "word_count", "timestamp"]
+                output_fields=self._get_output_fields()
             )
             
             search_results = []
@@ -173,7 +189,7 @@ class MilvusQueryEngine:
             
             results = self.collection.query(
                 expr=expr,
-                output_fields=["url", "title", "content", "content_type", "word_count", "timestamp"]
+                output_fields=self._get_output_fields()
             )
             
             return results
