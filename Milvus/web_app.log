@@ -155,3 +155,335 @@ API文档:
 /Users/dengbingbing/Documents/startup-deng/rag_with_mcp/Milvus/web_env/lib/python3.13/site-packages/torch/nn/modules/module.py:1762: FutureWarning: `encoder_attention_mask` is deprecated and will be removed in version 4.55.0 for `BertSdpaSelfAttention.forward`.
   return forward_call(*args, **kwargs)
 127.0.0.1 - - [30/Jul/2025 21:20:33] "POST /api/llama-chat HTTP/1.1" 200 -
+/Users/dengbingbing/Documents/startup-deng/rag_with_mcp/Milvus/web_env/lib/python3.13/site-packages/torch/nn/modules/module.py:1762: FutureWarning: `encoder_attention_mask` is deprecated and will be removed in version 4.55.0 for `BertSdpaSelfAttention.forward`.
+  return forward_call(*args, **kwargs)
+127.0.0.1 - - [30/Jul/2025 21:21:31] "POST /api/llama-chat HTTP/1.1" 200 -
+127.0.0.1 - - [30/Jul/2025 21:24:04] "GET /api/collections/kandenko_website_smart/stats HTTP/1.1" 200 -
+127.0.0.1 - - [30/Jul/2025 21:24:10] "POST /api/llama-chat HTTP/1.1" 200 -
+127.0.0.1 - - [30/Jul/2025 21:24:13] "POST /api/llama-chat HTTP/1.1" 200 -
+127.0.0.1 - - [30/Jul/2025 21:24:21] "GET /api/collections/kandenko_website/stats HTTP/1.1" 200 -
+127.0.0.1 - - [30/Jul/2025 21:24:32] "POST /api/llama-chat HTTP/1.1" 200 -
+127.0.0.1 - - [30/Jul/2025 21:25:41] "POST /api/llama-chat HTTP/1.1" 200 -
+127.0.0.1 - - [30/Jul/2025 21:26:00] "POST /api/llama-chat HTTP/1.1" 200 -
+127.0.0.1 - - [30/Jul/2025 21:26:19] "POST /api/llama-chat HTTP/1.1" 200 -
+127.0.0.1 - - [30/Jul/2025 22:07:20] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [30/Jul/2025 22:07:22] "GET /api/collections HTTP/1.1" 200 -
+127.0.0.1 - - [30/Jul/2025 22:23:45] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+127.0.0.1 - - [30/Jul/2025 22:39:43] "GET /api/collections/kandenko_website_smart/stats HTTP/1.1" 200 -
+127.0.0.1 - - [31/Jul/2025 05:29:02] "POST /api/llama-chat HTTP/1.1" 200 -
+127.0.0.1 - - [31/Jul/2025 05:29:04] "POST /api/llama-chat HTTP/1.1" 200 -
+127.0.0.1 - - [31/Jul/2025 05:29:04] "POST /api/llama-chat HTTP/1.1" 200 -
+127.0.0.1 - - [31/Jul/2025 05:29:05] "POST /api/llama-chat HTTP/1.1" 200 -
+ * Detected change in '/Users/dengbingbing/Documents/startup-deng/rag_with_mcp/Milvus/web_app.py', reloading
+🔧 初始化模型管理器 (带缓存)...
+✅ 发现 transformers 库，支持 Hugging Face LLaMA 模型
+✅ 支持 Ollama 本地 LLaMA 服务
+🔧 初始化Milvus连接池...
+🚀 启动智能查询系统 Web 服务
+============================================================
+Web UI: http://localhost:5001
+API文档:
+  GET  /api/collections - 获取所有集合
+  GET  /api/collections/<name>/stats - 集合统计
+  POST /api/vector-search - 向量搜索
+  POST /api/llama-chat - AI问答
+  GET  /health - 健康检查
+------------------------------------------------------------
+✅ 成功连接到 Milvus: localhost:19530
+✅ 集合 kandenko_website_smart 已加载
+📊 获取统计信息...
+🔌 已断开连接
+📡 创建新连接: kandenko_website_smart
+✅ 成功连接到 Milvus: localhost:19530
+✅ 集合 kandenko_website_smart 已加载
+✅ Ollama 服务可用，可用模型: ['llama3.2:3b', 'deepseek-r1:14b']
+✅ 模型 llama3.2:3b 已就绪
+🤖 RAG 查询: '関電工公司信息'
+🔍 第一步：向量搜索检索相关内容...
+🔍 基础搜索: '関電工公司信息'
+🔧 加载语义向量化模型 (仅此一次)...
+🔥 预热向量模型...
+✅ 语义模型加载完成并缓存
+🌐 检测到语言: zh
+🤖 第二步：LLaMA 生成智能回答...
+✅ Ollama 服务可用，模型: ['llama3.2:3b', 'deepseek-r1:14b']
+✅ Ollama 服务可用，可用模型: ['llama3.2:3b', 'deepseek-r1:14b']
+✅ 模型 llama3.2:3b 已就绪
+🤖 RAG 查询: '联系方式'
+🔍 第一步：向量搜索检索相关内容...
+🔍 基础搜索: '联系方式'
+🌐 检测到语言: zh
+🤖 第二步：LLaMA 生成智能回答...
+✅ 成功连接到 Milvus: localhost:19530
+✅ 集合 kandenko_website_smart 已加载
+📊 获取统计信息...
+🔌 已断开连接
+✅ Ollama 服务可用，可用模型: ['llama3.2:3b', 'deepseek-r1:14b']
+✅ 模型 llama3.2:3b 已就绪
+🤖 RAG 查询: '関電工公司信息'
+🔍 第一步：向量搜索检索相关内容...
+🔍 基础搜索: '関電工公司信息'
+❌ 搜索失败: <ConnectionNotExistException: (code=1, message=should create connection first.)>
+✅ Ollama 服务可用，可用模型: ['llama3.2:3b', 'deepseek-r1:14b']
+✅ 模型 llama3.2:3b 已就绪
+🤖 RAG 查询: '関電工公司信息'
+🔍 第一步：向量搜索检索相关内容...
+🔍 基础搜索: '関電工公司信息'
+❌ 搜索失败: <ConnectionNotExistException: (code=1, message=should create connection first.)>
+✅ 成功连接到 Milvus: localhost:19530
+✅ 集合 kandenko_website 已加载
+📊 获取统计信息...
+🔌 已断开连接
+📡 创建新连接: kandenko_website
+✅ 成功连接到 Milvus: localhost:19530
+✅ 集合 kandenko_website 已加载
+✅ Ollama 服务可用，可用模型: ['llama3.2:3b', 'deepseek-r1:14b']
+✅ 模型 llama3.2:3b 已就绪
+🤖 RAG 查询: '関電工公司信息'
+🔍 第一步：向量搜索检索相关内容...
+🔍 基础搜索: '関電工公司信息'
+🌐 检测到语言: zh
+🤖 第二步：LLaMA 生成智能回答...
+✅ Ollama 服务可用，可用模型: ['llama3.2:3b', 'deepseek-r1:14b']
+✅ 模型 llama3.2:3b 已就绪
+🤖 RAG 查询: '公司官网'
+🔍 第一步：向量搜索检索相关内容...
+🔍 基础搜索: '公司官网'
+🌐 检测到语言: zh
+🤖 第二步：LLaMA 生成智能回答...
+✅ Ollama 服务可用，可用模型: ['llama3.2:3b', 'deepseek-r1:14b']
+✅ 模型 llama3.2:3b 已就绪
+🤖 RAG 查询: '你来告诉我公司网址'
+🔍 第一步：向量搜索检索相关内容...
+🔍 基础搜索: '你来告诉我公司网址'
+🌐 检测到语言: zh
+🤖 第二步：LLaMA 生成智能回答...
+✅ Ollama 服务可用，可用模型: ['llama3.2:3b', 'deepseek-r1:14b']
+✅ 模型 llama3.2:3b 已就绪
+🤖 RAG 查询: '関電工公司信息'
+🔍 第一步：向量搜索检索相关内容...
+🔍 基础搜索: '関電工公司信息'
+🌐 检测到语言: zh
+🤖 第二步：LLaMA 生成智能回答...
+✅ 成功连接到 Milvus: localhost:19530
+✅ 集合 kandenko_website_smart 已加载
+📊 获取统计信息...
+🔌 已断开连接
+✅ Ollama 服务可用，可用模型: ['llama3.2:3b', 'deepseek-r1:14b']
+✅ 模型 llama3.2:3b 已就绪
+🤖 RAG 查询: '联系方式'
+🔍 第一步：向量搜索检索相关内容...
+🔍 基础搜索: '联系方式'
+❌ 搜索失败: <ConnectionNotExistException: (code=1, message=should create connection first.)>
+✅ Ollama 服务可用，可用模型: ['llama3.2:3b', 'deepseek-r1:14b']
+✅ 模型 llama3.2:3b 已就绪
+🤖 RAG 查询: '公司历史'
+🔍 第一步：向量搜索检索相关内容...
+🔍 基础搜索: '公司历史'
+❌ 搜索失败: <ConnectionNotExistException: (code=1, message=should create connection first.)>
+✅ Ollama 服务可用，可用模型: ['llama3.2:3b', 'deepseek-r1:14b']
+✅ 模型 llama3.2:3b 已就绪
+🤖 RAG 查询: '主要业务领域'
+🔍 第一步：向量搜索检索相关内容...
+🔍 基础搜索: '主要业务领域'
+❌ 搜索失败: <ConnectionNotExistException: (code=1, message=should create connection first.)>
+✅ Ollama 服务可用，可用模型: ['llama3.2:3b', 'deepseek-r1:14b']
+✅ 模型 llama3.2:3b 已就绪
+🤖 RAG 查询: '関電工公司信息'
+🔍 第一步：向量搜索检索相关内容...
+🔍 基础搜索: '関電工公司信息'
+❌ 搜索失败: <ConnectionNotExistException: (code=1, message=should create connection first.)>
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 119-540-104
+/Users/dengbingbing/Documents/startup-deng/rag_with_mcp/Milvus/web_env/lib/python3.13/site-packages/torch/nn/modules/module.py:1762: FutureWarning: `encoder_attention_mask` is deprecated and will be removed in version 4.55.0 for `BertSdpaSelfAttention.forward`.
+  return forward_call(*args, **kwargs)
+127.0.0.1 - - [31/Jul/2025 05:46:23] "POST /api/llama-chat HTTP/1.1" 200 -
+127.0.0.1 - - [31/Jul/2025 05:46:59] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [31/Jul/2025 05:47:00] "GET /api/collections HTTP/1.1" 200 -
+127.0.0.1 - - [31/Jul/2025 05:47:01] "GET /api/collections/kandenko_website_smart/stats HTTP/1.1" 200 -
+127.0.0.1 - - [31/Jul/2025 05:47:07] "POST /api/llama-chat HTTP/1.1" 200 -
+127.0.0.1 - - [31/Jul/2025 05:47:28] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [31/Jul/2025 05:48:21] "GET /api/collections HTTP/1.1" 200 -
+ * Detected change in '/Users/dengbingbing/Documents/startup-deng/rag_with_mcp/Milvus/web_app.py', reloading
+🔧 初始化模型管理器 (带缓存)...
+✅ 发现 transformers 库，支持 Hugging Face LLaMA 模型
+✅ 支持 Ollama 本地 LLaMA 服务
+🔧 初始化Milvus连接池...
+🚀 启动智能查询系统 Web 服务
+============================================================
+Web UI: http://localhost:5001
+API文档:
+  GET  /api/collections - 获取所有集合
+  GET  /api/collections/<name>/stats - 集合统计
+  POST /api/vector-search - 向量搜索
+  POST /api/llama-chat - AI问答
+  GET  /health - 健康检查
+------------------------------------------------------------
+📡 创建新连接: kandenko_website_smart
+✅ 成功连接到 Milvus: localhost:19530
+✅ 集合 kandenko_website_smart 已加载
+✅ Ollama 服务可用，可用模型: ['llama3.2:3b', 'deepseek-r1:14b']
+✅ 模型 llama3.2:3b 已就绪
+🤖 RAG 查询: '関電工公司信息'
+🔍 第一步：向量搜索检索相关内容...
+🔍 基础搜索: '関電工公司信息'
+🔧 加载语义向量化模型 (仅此一次)...
+🔥 预热向量模型...
+✅ 语义模型加载完成并缓存
+🌐 检测到语言: zh
+🤖 第二步：LLaMA 生成智能回答...
+✅ Ollama 服务可用，模型: ['llama3.2:3b', 'deepseek-r1:14b']
+✅ 成功连接到 Milvus: localhost:19530
+✅ 集合 kandenko_website_smart 已加载
+📊 获取统计信息...
+🔌 已断开连接
+✅ Ollama 服务可用，可用模型: ['llama3.2:3b', 'deepseek-r1:14b']
+✅ 模型 llama3.2:3b 已就绪
+🤖 RAG 查询: '関電工公司信息'
+🔍 第一步：向量搜索检索相关内容...
+🔍 基础搜索: '関電工公司信息'
+❌ 搜索失败: <ConnectionNotExistException: (code=1, message=should create connection first.)>
+获取集合失败: <ConnectionNotExistException: (code=1, message=should create connection first.)>
+获取集合失败: <ConnectionNotExistException: (code=1, message=should create connection first.)>
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 119-540-104
+127.0.0.1 - - [31/Jul/2025 05:48:35] "GET /api/collections HTTP/1.1" 200 -
+/Users/dengbingbing/Documents/startup-deng/rag_with_mcp/Milvus/web_env/lib/python3.13/site-packages/torch/nn/modules/module.py:1762: FutureWarning: `encoder_attention_mask` is deprecated and will be removed in version 4.55.0 for `BertSdpaSelfAttention.forward`.
+  return forward_call(*args, **kwargs)
+127.0.0.1 - - [31/Jul/2025 05:48:58] "POST /api/llama-chat HTTP/1.1" 200 -
+127.0.0.1 - - [31/Jul/2025 05:49:12] "POST /api/llama-chat HTTP/1.1" 200 -
+/Users/dengbingbing/Documents/startup-deng/rag_with_mcp/Milvus/web_env/lib/python3.13/site-packages/torch/nn/modules/module.py:1762: FutureWarning: `encoder_attention_mask` is deprecated and will be removed in version 4.55.0 for `BertSdpaSelfAttention.forward`.
+  return forward_call(*args, **kwargs)
+127.0.0.1 - - [31/Jul/2025 05:51:09] "POST /api/llama-chat HTTP/1.1" 200 -
+ * Detected change in '/Users/dengbingbing/Documents/startup-deng/rag_with_mcp/Milvus/llama_query.py', reloading
+🔧 初始化模型管理器 (带缓存)...
+✅ 发现 transformers 库，支持 Hugging Face LLaMA 模型
+✅ 支持 Ollama 本地 LLaMA 服务
+🔧 初始化Milvus连接池...
+🚀 启动智能查询系统 Web 服务
+============================================================
+Web UI: http://localhost:5001
+API文档:
+  GET  /api/collections - 获取所有集合
+  GET  /api/collections/<name>/stats - 集合统计
+  POST /api/vector-search - 向量搜索
+  POST /api/llama-chat - AI问答
+  GET  /health - 健康检查
+------------------------------------------------------------
+✅ Web管理器成功连接到 Milvus: localhost:19530
+📡 创建新连接: kandenko_website_smart
+✅ 成功连接到 Milvus: localhost:19530
+✅ 集合 kandenko_website_smart 已加载
+✅ Ollama 服务可用，可用模型: ['llama3.2:3b', 'deepseek-r1:14b']
+✅ 模型 llama3.2:3b 已就绪
+🤖 RAG 查询: '関電工公司信息'
+🔍 第一步：向量搜索检索相关内容...
+🔍 基础搜索: '関電工公司信息'
+🔧 加载语义向量化模型 (仅此一次)...
+🔥 预热向量模型...
+✅ 语义模型加载完成并缓存
+🌐 检测到语言: zh
+🤖 第二步：LLaMA 生成智能回答...
+✅ Ollama 服务可用，模型: ['llama3.2:3b', 'deepseek-r1:14b']
+✅ Ollama 服务可用，可用模型: ['llama3.2:3b', 'deepseek-r1:14b']
+✅ 模型 llama3.2:3b 已就绪
+🤖 RAG 查询: '関電工公司信息'
+🔍 第一步：向量搜索检索相关内容...
+🔍 基础搜索: '関電工公司信息'
+🌐 检测到语言: zh
+🤖 第二步：LLaMA 生成智能回答...
+✅ Ollama 服务可用，可用模型: ['llama3.2:3b', 'deepseek-r1:14b']
+✅ 模型 llama3.2:3b 已就绪
+🤖 RAG 查询: '会社概要'
+🔍 第一步：向量搜索检索相关内容...
+🔍 基础搜索: '会社概要'
+🌐 检测到语言: zh
+🤖 第二步：LLaMA 生成智能回答...
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 119-540-104
+/Users/dengbingbing/Documents/startup-deng/rag_with_mcp/Milvus/web_env/lib/python3.13/site-packages/torch/nn/modules/module.py:1762: FutureWarning: `encoder_attention_mask` is deprecated and will be removed in version 4.55.0 for `BertSdpaSelfAttention.forward`.
+  return forward_call(*args, **kwargs)
+127.0.0.1 - - [31/Jul/2025 05:52:10] "POST /api/llama-chat HTTP/1.1" 200 -
+ * Detected change in '/Users/dengbingbing/Documents/startup-deng/rag_with_mcp/Milvus/web_app.py', reloading
+🔧 初始化模型管理器 (带缓存)...
+✅ 发现 transformers 库，支持 Hugging Face LLaMA 模型
+✅ 支持 Ollama 本地 LLaMA 服务
+🔧 初始化Milvus连接池...
+🚀 启动智能查询系统 Web 服务
+============================================================
+Web UI: http://localhost:5001
+API文档:
+  GET  /api/collections - 获取所有集合
+  GET  /api/collections/<name>/stats - 集合统计
+  POST /api/vector-search - 向量搜索
+  POST /api/llama-chat - AI问答
+  GET  /health - 健康检查
+------------------------------------------------------------
+📡 创建新连接: kandenko_website_smart
+✅ 成功连接到 Milvus: localhost:19530
+✅ 集合 kandenko_website_smart 已加载
+✅ Ollama 服务可用，可用模型: ['llama3.2:3b', 'deepseek-r1:14b']
+✅ 模型 llama3.2:3b 已就绪
+🤖 RAG 查询: '会社概要'
+🔍 第一步：向量搜索检索相关内容...
+🔍 基础搜索: '会社概要'
+🔧 加载语义向量化模型 (仅此一次)...
+🔥 预热向量模型...
+✅ 语义模型加载完成并缓存
+🌐 检测到语言: zh
+🤖 第二步：LLaMA 生成智能回答...
+✅ Ollama 服务可用，模型: ['llama3.2:3b', 'deepseek-r1:14b']
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 119-540-104
+/Users/dengbingbing/Documents/startup-deng/rag_with_mcp/Milvus/web_env/lib/python3.13/site-packages/torch/nn/modules/module.py:1762: FutureWarning: `encoder_attention_mask` is deprecated and will be removed in version 4.55.0 for `BertSdpaSelfAttention.forward`.
+  return forward_call(*args, **kwargs)
+127.0.0.1 - - [31/Jul/2025 05:53:34] "POST /api/llama-chat HTTP/1.1" 200 -
+/Users/dengbingbing/Documents/startup-deng/rag_with_mcp/Milvus/web_env/lib/python3.13/site-packages/torch/nn/modules/module.py:1762: FutureWarning: `encoder_attention_mask` is deprecated and will be removed in version 4.55.0 for `BertSdpaSelfAttention.forward`.
+  return forward_call(*args, **kwargs)
+127.0.0.1 - - [31/Jul/2025 05:54:52] "POST /api/vector-search HTTP/1.1" 200 -
+ * Detected change in '/Users/dengbingbing/Documents/startup-deng/rag_with_mcp/Milvus/llama_query.py', reloading
+🔧 初始化模型管理器 (带缓存)...
+✅ 发现 transformers 库，支持 Hugging Face LLaMA 模型
+✅ 支持 Ollama 本地 LLaMA 服务
+🔧 初始化Milvus连接池...
+🚀 启动智能查询系统 Web 服务
+============================================================
+Web UI: http://localhost:5001
+API文档:
+  GET  /api/collections - 获取所有集合
+  GET  /api/collections/<name>/stats - 集合统计
+  POST /api/vector-search - 向量搜索
+  POST /api/llama-chat - AI问答
+  GET  /health - 健康检查
+------------------------------------------------------------
+📡 创建新连接: kandenko_website_smart
+✅ 成功连接到 Milvus: localhost:19530
+✅ 集合 kandenko_website_smart 已加载
+✅ Ollama 服务可用，可用模型: ['llama3.2:3b', 'deepseek-r1:14b']
+✅ 模型 deepseek-r1:14b 已就绪
+🤖 RAG 查询: '株式会社関電工の会社概要を教えてください'
+🔍 第一步：向量搜索检索相关内容...
+🔍 基础搜索: '株式会社関電工の会社概要を教えてください'
+🔧 加载语义向量化模型 (仅此一次)...
+🔥 预热向量模型...
+✅ 语义模型加载完成并缓存
+🌐 检测到语言: ja
+🤖 第二步：LLaMA 生成智能回答...
+✅ Ollama 服务可用，模型: ['llama3.2:3b', 'deepseek-r1:14b']
+✅ 成功连接到 Milvus: localhost:19530
+✅ 集合 kandenko_website_smart 已加载
+🔍 基础搜索: '会社概要 株式会社関電工 設立 資本金'
+🔌 已断开连接
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 119-540-104
+/Users/dengbingbing/Documents/startup-deng/rag_with_mcp/Milvus/web_env/lib/python3.13/site-packages/torch/nn/modules/module.py:1762: FutureWarning: `encoder_attention_mask` is deprecated and will be removed in version 4.55.0 for `BertSdpaSelfAttention.forward`.
+  return forward_call(*args, **kwargs)
+/Users/dengbingbing/Documents/startup-deng/rag_with_mcp/Milvus/web_env/lib/python3.13/site-packages/torch/nn/modules/module.py:1762: FutureWarning: `encoder_attention_mask` is deprecated and will be removed in version 4.55.0 for `BertSdpaSelfAttention.forward`.
+  return forward_call(*args, **kwargs)
+127.0.0.1 - - [31/Jul/2025 05:56:18] "POST /api/llama-chat HTTP/1.1" 200 -
+127.0.0.1 - - [31/Jul/2025 05:56:23] "POST /api/llama-chat HTTP/1.1" 200 -

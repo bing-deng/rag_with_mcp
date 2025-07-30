@@ -299,46 +299,53 @@ class LLaMAQueryEngine:
         print(f"🌐 检测到语言: {detected_lang}")
         context_text = "\n\n".join(contexts)
         
-        # 多语言系统提示 - 改进版，加入基本事实避免错误理解
+        # 强化版提示 - 严格要求AI只使用背景信息，防止幻觉
         if detected_lang == 'ja':
-            prompt = f"""あなたは株式会社関電工に関する質問にお答えする専門アシスタントです。
+            prompt = f"""あなたは株式会社関電工について正確な情報を提供する専門アシスタントです。
 
-重要：株式会社関電工は日本の電気工事会社であり、電力・電気設備工事、情報通信工事、土木工事などを行う企業です。
-
-以下の背景情報を使用して、詳細で包括的で正確な回答を提供してください。具体的なデータ、時間、場所などの情報を含めて、できるだけ詳しく説明してください：
+重要指示：
+1. 必ず以下の背景情報のみを使用して回答してください
+2. 背景情報にない内容は決して作り上げないでください
+3. 株式会社関電工は関西電力とは全く異なる会社です
+4. 背景情報から直接引用して正確な数値や日付を提供してください
 
 背景情報：
 {context_text}
 
 質問：{question}
 
-上記の背景情報に基づいて、関電工について詳細に回答してください（具体的なデータと説明を含む完全で詳細な回答をお願いします）："""
+背景情報に基づいて正確に回答してください（背景情報にないことは「背景情報にございません」と答えてください）："""
         elif detected_lang == 'en':
-            prompt = f"""You are a professional assistant that answers questions about Kandenko Corporation.
+            prompt = f"""You are a professional assistant providing accurate information about Kandenko Corporation.
 
-Important: Kandenko Corporation is a Japanese electrical engineering company that provides electrical power construction, electrical equipment installation, telecommunication construction, and civil engineering services.
-
-Use the following background information to provide detailed, comprehensive, and accurate answers. Please explain as thoroughly as possible, including specific data, dates, locations, and other relevant information:
+Critical Instructions:
+1. ONLY use the background information provided below
+2. NEVER create or invent information not in the background
+3. Kandenko Corporation is completely different from Kansai Electric Power Company
+4. Quote exact numbers and dates directly from the background information
 
 Background Information:
 {context_text}
 
 Question: {question}
 
-Based on the above background information, please provide a detailed answer about Kandenko (please provide a complete and detailed response with specific data and explanations):"""
+Answer accurately based only on the background information (if information is not available in the background, say "This information is not available in the provided context"):"""
         else:  # 默认中文
-            prompt = f"""您是一个回答株式会社关电工相关问题的专业助手。
+            prompt = f"""你是一个专门提供株式会社関電工信息的助手。
 
-重要：株式会社关电工是一家日本电气工程公司，主要从事电力工程、电气设备安装、通信工程和土木工程等业务。
+绝对规则：
+1. 只能使用下面的【背景信息】中出现的内容
+2. 如果背景信息中有具体数字、日期、地址，必须完全按原文引用
+3. 不允许添加任何背景信息中没有的内容
+4. 株式会社関電工不是关西电力公司
 
-请使用以下背景信息提供详细、全面、准确的回答。请尽可能详细地解释，包括具体的数据、时间、地点等信息：
-
-背景信息：
+【背景信息】
 {context_text}
+【背景信息结束】
 
 问题：{question}
 
-基于上述背景信息，请详细回答关于关电工的问题（请提供完整详细的回答，包含具体数据和解释）："""
+回答要求：请直接从上述【背景信息】中找出相关内容来回答，必须保持与背景信息完全一致的数字和表述。"""
 
         # 4. 生成回答
         print("🤖 第二步：LLaMA 生成智能回答...")

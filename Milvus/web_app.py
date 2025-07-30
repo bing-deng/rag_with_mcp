@@ -40,12 +40,18 @@ class WebQueryManager:
     def connect_to_milvus(self) -> bool:
         """连接到Milvus"""
         try:
-            if not self.connected:
-                connections.connect("default", host=self.host, port=self.port)
-                self.connected = True
+            # 总是尝试重新连接以确保连接有效
+            try:
+                connections.disconnect("default")
+            except:
+                pass
+            connections.connect("default", host=self.host, port=self.port)
+            self.connected = True
+            print(f"✅ Web管理器成功连接到 Milvus: {self.host}:{self.port}")
             return True
         except Exception as e:
-            print(f"连接Milvus失败: {e}")
+            print(f"❌ Web管理器连接Milvus失败: {e}")
+            self.connected = False
             return False
     
     def get_collections(self) -> List[str]:
@@ -145,15 +151,15 @@ def vector_search():
                 # 基础搜索
                 results = engine.basic_search(query=query, top_k=top_k)
             
-            # 格式化结果
+            # 格式化结果 - 安全获取字段
             formatted_results = []
             for result in results:
                 formatted_results.append({
                     'title': result.get('title', '无标题'),
                     'content': result.get('content', ''),
                     'url': result.get('url', ''),
-                    'content_type': result.get('content_type', ''),
-                    'distance': result.get('distance', 0.0)
+                    'content_type': result.get('content_type', 'unknown'),
+                    'distance': result.get('score', result.get('distance', 0.0))  # 统一使用score字段
                 })
             
             return jsonify({
@@ -193,10 +199,10 @@ def llama_chat():
             if not milvus_engine:
                 return jsonify({'error': 'Milvus连接失败，请检查服务状态'}), 500
             
-            # 创建LLaMA查询引擎，复用Milvus连接
+            # 创建LLaMA查询引擎，使用更强大的模型减少幻觉
             engine = LLaMAQueryEngine(
                 model_type='ollama',
-                model_name='llama3.2:3b',
+                model_name='deepseek-r1:14b',  # 使用更强大的模型
                 collection_name=collection_name
             )
             # 直接使用池化的连接
