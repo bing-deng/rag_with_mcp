@@ -280,12 +280,12 @@ class LLaMAQueryEngine:
                 "sources": []
             }
         
-        # 2. 构建上下文
+        # 2. 构建上下文 - 不使用"文档X"标记
         contexts = []
         sources = []
         for i, result in enumerate(search_results):
-            context = f"文档{i+1}: {result['content']}"
-            contexts.append(context)
+            # 直接使用内容，不添加"文档X"前缀
+            contexts.append(result['content'])
             sources.append({
                 "id": result['id'],
                 "title": result['title'],
@@ -299,36 +299,51 @@ class LLaMAQueryEngine:
         print(f"🌐 检测到语言: {detected_lang}")
         context_text = "\n\n".join(contexts)
         
-        # 多语言系统提示 - 简化版
+        # 多语言系统提示 - 改进版，加入基本事实避免错误理解
         if detected_lang == 'ja':
-            prompt = f"""以下の情報から回答してください：
+            prompt = f"""あなたは株式会社関電工に関する質問にお答えする専門アシスタントです。
 
+重要：株式会社関電工は日本の電気工事会社であり、電力・電気設備工事、情報通信工事、土木工事などを行う企業です。
+
+以下の背景情報を使用して、詳細で包括的で正確な回答を提供してください。具体的なデータ、時間、場所などの情報を含めて、できるだけ詳しく説明してください：
+
+背景情報：
 {context_text}
 
 質問：{question}
 
-回答："""
+上記の背景情報に基づいて、関電工について詳細に回答してください（具体的なデータと説明を含む完全で詳細な回答をお願いします）："""
         elif detected_lang == 'en':
-            prompt = f"""Answer based on this information:
+            prompt = f"""You are a professional assistant that answers questions about Kandenko Corporation.
 
+Important: Kandenko Corporation is a Japanese electrical engineering company that provides electrical power construction, electrical equipment installation, telecommunication construction, and civil engineering services.
+
+Use the following background information to provide detailed, comprehensive, and accurate answers. Please explain as thoroughly as possible, including specific data, dates, locations, and other relevant information:
+
+Background Information:
 {context_text}
 
 Question: {question}
 
-Answer:"""
+Based on the above background information, please provide a detailed answer about Kandenko (please provide a complete and detailed response with specific data and explanations):"""
         else:  # 默认中文
-            prompt = f"""根据以下信息回答：
+            prompt = f"""您是一个回答株式会社关电工相关问题的专业助手。
 
+重要：株式会社关电工是一家日本电气工程公司，主要从事电力工程、电气设备安装、通信工程和土木工程等业务。
+
+请使用以下背景信息提供详细、全面、准确的回答。请尽可能详细地解释，包括具体的数据、时间、地点等信息：
+
+背景信息：
 {context_text}
 
 问题：{question}
 
-回答："""
+基于上述背景信息，请详细回答关于关电工的问题（请提供完整详细的回答，包含具体数据和解释）："""
 
         # 4. 生成回答
         print("🤖 第二步：LLaMA 生成智能回答...")
-        # 进一步减少最大令牌数以大幅加快生成速度
-        optimized_max_tokens = min(max_tokens, 80)  # 大幅限制在80个令牌
+        # 设置详细回答的令牌数
+        optimized_max_tokens = min(max_tokens, 800)  # 增加到800个令牌以获得详细回答
         generated_answer = self.generate_response(prompt, optimized_max_tokens)
         
         return {

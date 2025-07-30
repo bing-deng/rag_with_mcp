@@ -1,0 +1,42 @@
+{
+  "config": {
+    "base_url": "https://www.kandenko.co.jp",
+    "max_pages": 300,
+    "max_depth": 3,
+    "concurrent_workers": 2,
+    "delay_between_requests": 2.0,
+    "timeout": 30,
+    "collection_name": "kandenko_website_smart",
+    "quality_threshold": 0.5
+  },
+  "stats": {
+    "pages_crawled": 0,
+    "pages_failed": 1,
+    "smart_chunks_created": 0,
+    "high_quality_chunks": 0,
+    "start_time": 1753866376.3785,
+    "end_time": 1753866377.405838,
+    "languages_detected": {
+      "ja": 0,
+      "zh": 0,
+      "en": 0
+    }
+  },
+  "processor_stats": {
+    "total_pages_processed": 0,
+    "total_chunks_created": 0,
+    "high_quality_chunks": 0,
+    "filtered_low_quality": 0,
+    "multilingual_detection": {
+      "ja": 0,
+      "zh": 0,
+      "en": 0
+    }
+  },
+  "visited_urls": [
+    "https://www.kandenko.co.jp"
+  ],
+  "failed_urls": [
+    "https://www.kandenko.co.jp"
+  ]
+}
