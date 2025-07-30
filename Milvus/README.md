@@ -645,6 +645,10 @@ def cleanup_old_data(collection, days=30):
 2. **进阶者**：运行 `text_search_example.py` 学习实际应用
 3. **高级用户**：使用 `advanced_text_search.py` 体验真正的语义搜索
 
+### gui
+
+* http://127.0.0.1:9091/webui
+
 ### 相关资源
 
 - [Milvus 官方文档](https://milvus.io/docs)
