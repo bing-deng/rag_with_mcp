@@ -7,3 +7,5 @@ volumes/
 .DS_Store
 .idea/
 .pytest_cache/
+*.pyc
+llama_query.cpython-313.pyc

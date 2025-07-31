@@ -199,12 +199,14 @@ def llama_chat():
             if not milvus_engine:
                 return jsonify({'error': 'Milvus连接失败，请检查服务状态'}), 500
             
-            # 创建LLaMA查询引擎，使用更强大的模型减少幻觉
+            # 创建LLaMA查询引擎，优化速度和质量平衡
+            model_name = 'llama3.2:3b'  # 使用更快的模型，减少等待时间
             engine = LLaMAQueryEngine(
                 model_type='ollama',
-                model_name='deepseek-r1:14b',  # 使用更强大的模型
+                model_name=model_name,
                 collection_name=collection_name
             )
+            print(f"🚀 使用快速模型: {model_name}")
             # 直接使用池化的连接
             engine.milvus_engine = milvus_engine
             
