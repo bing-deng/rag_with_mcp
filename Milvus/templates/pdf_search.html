@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF文档智能搜索系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .search-section {
+            margin-bottom: 40px;
+        }
+
+        .search-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .search-input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 15px;
+            font-size: 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .search-options {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .option-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .option-group label {
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .option-group input, .option-group select {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 70, 229, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        .upload-section {
+            margin-bottom: 40px;
+            padding: 30px;
+            background: #f8fafc;
+            border-radius: 10px;
+            border: 2px dashed #cbd5e1;
+        }
+
+        .upload-area {
+            text-align: center;
+            padding: 40px;
+            border: 2px dashed #cbd5e1;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-area:hover {
+            border-color: #4f46e5;
+            background: #f0f9ff;
+        }
+
+        .upload-area.dragover {
+            border-color: #4f46e5;
+            background: #dbeafe;
+        }
+
+        .results-section {
+            margin-top: 40px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f4f6;
+            border-radius: 50%;
+            border-top-color: #4f46e5;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .result-item {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            padding: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .result-item:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .result-meta {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .result-score {
+            background: #10b981;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .result-score.medium {
+            background: #f59e0b;
+        }
+
+        .result-score.low {
+            background: #ef4444;
+        }
+
+        .result-content {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #374151;
+            margin-bottom: 15px;
+        }
+
+        .result-source {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid #e5e7eb;
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #e5e7eb;
+            margin-bottom: 30px;
+        }
+
+        .tab {
+            padding: 15px 30px;
+            background: none;
+            border: none;
+            font-size: 16px;
+            font-weight: 500;
+            color: #6b7280;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            color: #4f46e5;
+            border-bottom: 2px solid #4f46e5;
+        }
+
+        .tab:hover {
+            color: #4f46e5;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #4f46e5;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            border: 1px solid #a7f3d0;
+            color: #065f46;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            border: 1px solid #fca5a5;
+            color: #991b1b;
+        }
+
+        .alert-info {
+            background: #dbeafe;
+            border: 1px solid #93c5fd;
+            color: #1e40af;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 20px;
+            }
+
+            .search-input-group {
+                flex-direction: column;
+            }
+
+            .search-options {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .option-group {
+                justify-content: space-between;
+            }
+
+            .tabs {
+                flex-wrap: wrap;
+            }
+
+            .tab {
+                flex: 1;
+                min-width: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>PDF文档智能搜索系统</h1>
+            <p>基于向量化技术的智能文档检索与问答系统</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 标签页导航 -->
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('search')">智能搜索</button>
+                <button class="tab" onclick="switchTab('qa')">智能问答</button>
+                <button class="tab" onclick="switchTab('upload')">文档上传</button>
+                <button class="tab" onclick="switchTab('stats')">系统状态</button>
+            </div>
+
+            <!-- 搜索标签页 -->
+            <div id="search-tab" class="tab-content active">
+                <div class="search-section">
+                    <h2 style="margin-bottom: 20px; color: #374151;">文档搜索</h2>
+                    <form class="search-form" onsubmit="performSearch(event)">
+                        <div class="search-input-group">
+                            <input type="text" id="searchQuery" class="search-input" 
+                                   placeholder="输入搜索关键词，例如：电柱番号、計量器、設備種目..." required>
+                            <button type="submit" class="btn btn-primary">搜索</button>
+                        </div>
+                        
+                        <div class="search-options">
+                            <div class="option-group">
+                                <label for="topK">结果数量:</label>
+                                <select id="topK">
+                                    <option value="5">5条</option>
+                                    <option value="10">10条</option>
+                                    <option value="15">15条</option>
+                                    <option value="20">20条</option>
+                                </select>
+                            </div>
+                            
+                            <div class="option-group">
+                                <label for="pdfFilter">PDF筛选:</label>
+                                <input type="text" id="pdfFilter" placeholder="可选：PDF文件名筛选">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="searchResults" class="results-section"></div>
+            </div>
+
+            <!-- 问答标签页 -->
+            <div id="qa-tab" class="tab-content">
+                <div class="search-section">
+                    <h2 style="margin-bottom: 20px; color: #374151;">智能问答</h2>
+                    <form class="search-form" onsubmit="askQuestion(event)">
+                        <div class="search-input-group">
+                            <input type="text" id="questionInput" class="search-input" 
+                                   placeholder="请输入您的问题，例如：如何填写电柱番号？計量器有什么注意事项？" required>
+                            <button type="submit" class="btn btn-primary">提问</button>
+                        </div>
+                        
+                        <div class="search-options">
+                            <div class="option-group">
+                                <label for="contextSize">上下文数量:</label>
+                                <select id="contextSize">
+                                    <option value="3">3个相关段落</option>
+                                    <option value="5">5个相关段落</option>
+                                    <option value="7">7个相关段落</option>
+                                    <option value="10">10个相关段落</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="qaResults" class="results-section"></div>
+            </div>
+
+            <!-- 上传标签页 -->
+            <div id="upload-tab" class="tab-content">
+                <div class="upload-section">
+                    <h2 style="margin-bottom: 20px; color: #374151;">PDF文档上传</h2>
+                    <div class="upload-area" id="uploadArea" 
+                         ondrop="handleDrop(event)" ondragover="handleDragOver(event)" 
+                         ondragleave="handleDragLeave(event)" onclick="document.getElementById('fileInput').click()">
+                        <div style="font-size: 48px; color: #cbd5e1; margin-bottom: 20px;">📁</div>
+                        <h3 style="margin-bottom: 10px; color: #374151;">拖拽PDF文件到此处或点击选择</h3>
+                        <p style="color: #6b7280;">支持PDF格式，最大50MB</p>
+                        <input type="file" id="fileInput" accept=".pdf" style="display: none;" onchange="uploadFile(event)">
+                    </div>
+                </div>
+
+                <div id="uploadResults" class="results-section"></div>
+            </div>
+
+            <!-- 统计标签页 -->
+            <div id="stats-tab" class="tab-content">
+                <h2 style="margin-bottom: 20px; color: #374151;">系统状态</h2>
+                <div id="statsContent">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>正在加载统计信息...</p>
+                    </div>
+                </div>
+                <button class="btn btn-secondary" onclick="loadStats()">刷新统计</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let currentTab = 'search';
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadStats();
+            checkHealth();
+        });
+
+        // 标签页切换
+        function switchTab(tabName) {
+            // 隐藏所有标签内容
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // 移除所有标签的active状态
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // 显示选中的标签内容
+            document.getElementById(tabName + '-tab').classList.add('active');
+            
+            // 设置选中的标签为active
+            event.target.classList.add('active');
+            
+            currentTab = tabName;
+            
+            // 如果切换到统计页面，自动加载统计信息
+            if (tabName === 'stats') {
+                loadStats();
+            }
+        }
+
+        // 执行搜索
+        async function performSearch(event) {
+            event.preventDefault();
+            
+            const query = document.getElementById('searchQuery').value.trim();
+            const topK = document.getElementById('topK').value;
+            const pdfFilter = document.getElementById('pdfFilter').value.trim();
+            
+            if (!query) {
+                showAlert('请输入搜索关键词', 'error');
+                return;
+            }
+            
+            const resultsDiv = document.getElementById('searchResults');
+            resultsDiv.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>正在搜索相关文档...</p>
+                </div>
+            `;
+            
+            try {
+                const response = await fetch('/api/search', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        query: query,
+                        top_k: parseInt(topK),
+                        pdf_filter: pdfFilter
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    displaySearchResults(data);
+                } else {
+                    throw new Error(data.error || '搜索失败');
+                }
+                
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div class="alert alert-error">
+                        <strong>搜索失败：</strong>${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        // 显示搜索结果
+        function displaySearchResults(data) {
+            const resultsDiv = document.getElementById('searchResults');
+            
+            if (data.results.length === 0) {
+                resultsDiv.innerHTML = `
+                    <div class="alert alert-info">
+                        <strong>未找到相关结果</strong><br>
+                        请尝试其他关键词或检查拼写
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = `
+                <div class="alert alert-success">
+                    <strong>搜索完成：</strong>找到 ${data.results_count} 个相关结果
+                </div>
+            `;
+            
+            data.results.forEach((result, index) => {
+                const scoreClass = result.relevance;
+                const scoreText = result.relevance === 'high' ? '高相关' : 
+                                result.relevance === 'medium' ? '中等相关' : '低相关';
+                
+                html += `
+                    <div class="result-item">
+                        <div class="result-header">
+                            <div class="result-meta">
+                                <span>📄 ${result.pdf_name}</span>
+                                <span>📖 第${result.page_number}页</span>
+                                <span>🏷️ ${result.chunk_type}</span>
+                            </div>
+                            <div class="result-score ${scoreClass}">${scoreText} (${result.score})</div>
+                        </div>
+                        <div class="result-content">
+                            ${highlightQuery(result.text, data.query)}
+                        </div>
+                        <div class="result-source">
+                            <span>文档类型: ${result.chunk_type}</span>
+                            <span>文本长度: ${result.text.length} 字符</span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            resultsDiv.innerHTML = html;
+        }
+
+        // 智能问答
+        async function askQuestion(event) {
+            event.preventDefault();
+            
+            const question = document.getElementById('questionInput').value.trim();
+            const contextSize = document.getElementById('contextSize').value;
+            
+            if (!question) {
+                showAlert('请输入您的问题', 'error');
+                return;
+            }
+            
+            const resultsDiv = document.getElementById('qaResults');
+            resultsDiv.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>正在分析问题并生成答案...</p>
+                </div>
+            `;
+            
+            try {
+                const response = await fetch('/api/answer', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        question: question,
+                        context_size: parseInt(contextSize)
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    displayAnswer(data);
+                } else {
+                    throw new Error(data.error || '问答失败');
+                }
+                
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div class="alert alert-error">
+                        <strong>问答失败：</strong>${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        // 显示问答结果
+        function displayAnswer(data) {
+            const resultsDiv = document.getElementById('qaResults');
+            
+            const confidenceClass = data.confidence === 'high' ? 'success' : 
+                                  data.confidence === 'medium' ? 'info' : 'error';
+            const confidenceText = data.confidence === 'high' ? '高置信度' : 
+                                  data.confidence === 'medium' ? '中等置信度' : '低置信度';
+            
+            let html = `
+                <div class="result-item">
+                    <div class="result-header">
+                        <h3 style="color: #374151; margin-bottom: 10px;">❓ ${data.question}</h3>
+                        <div class="result-score ${data.confidence}">${confidenceText}</div>
+                    </div>
+                    <div class="result-content" style="font-size: 16px; line-height: 1.8; background: #f8fafc; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                        <strong>💡 答案：</strong><br><br>
+                        ${data.answer.replace(/\n/g, '<br>')}
+                    </div>
+                </div>
+            `;
+            
+            if (data.sources && data.sources.length > 0) {
+                html += `
+                    <div class="result-item">
+                        <h4 style="color: #374151; margin-bottom: 15px;">📚 参考来源 (${data.sources.length}个)</h4>
+                `;
+                
+                data.sources.forEach((source, index) => {
+                    html += `
+                        <div class="result-content" style="margin-bottom: 15px; padding: 15px; background: #f3f4f6; border-radius: 8px;">
+                            <div class="result-meta" style="margin-bottom: 10px;">
+                                <span>📄 ${source.pdf_name}</span>
+                                <span>📖 第${source.page_number}页</span>
+                                <span>🎯 相关度: ${source.score.toFixed(4)}</span>
+                            </div>
+                            <div>${source.text_preview}</div>
+                        </div>
+                    `;
+                });
+                
+                html += `</div>`;
+            }
+            
+            resultsDiv.innerHTML = html;
+        }
+
+        // 文件上传处理
+        function handleDragOver(event) {
+            event.preventDefault();
+            document.getElementById('uploadArea').classList.add('dragover');
+        }
+
+        function handleDragLeave(event) {
+            event.preventDefault();
+            document.getElementById('uploadArea').classList.remove('dragover');
+        }
+
+        function handleDrop(event) {
+            event.preventDefault();
+            document.getElementById('uploadArea').classList.remove('dragover');
+            
+            const files = event.dataTransfer.files;
+            if (files.length > 0) {
+                uploadFileHandler(files[0]);
+            }
+        }
+
+        function uploadFile(event) {
+            const file = event.target.files[0];
+            if (file) {
+                uploadFileHandler(file);
+            }
+        }
+
+        async function uploadFileHandler(file) {
+            if (!file.name.toLowerCase().endsWith('.pdf')) {
+                showAlert('请选择PDF文件', 'error');
+                return;
+            }
+            
+            if (file.size > 50 * 1024 * 1024) { // 50MB
+                showAlert('文件大小不能超过50MB', 'error');
+                return;
+            }
+            
+            const resultsDiv = document.getElementById('uploadResults');
+            resultsDiv.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>正在上传并处理PDF文档...</p>
+                </div>
+            `;
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            try {
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    resultsDiv.innerHTML = `
+                        <div class="alert alert-success">
+                            <strong>上传成功！</strong><br>
+                            文件：${file.name}<br>
+                            生成文本块：${data.chunks_created}个<br>
+                            处理时间：${data.timestamp}
+                        </div>
+                    `;
+                    
+                    // 刷新统计信息
+                    if (currentTab === 'stats') {
+                        loadStats();
+                    }
+                } else {
+                    throw new Error(data.error || '上传失败');
+                }
+                
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div class="alert alert-error">
+                        <strong>上传失败：</strong>${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        // 加载统计信息
+        async function loadStats() {
+            const statsDiv = document.getElementById('statsContent');
+            statsDiv.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>正在加载统计信息...</p>
+                </div>
+            `;
+            
+            try {
+                const response = await fetch('/api/stats');
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    displayStats(data);
+                } else {
+                    throw new Error(data.error || '加载统计信息失败');
+                }
+                
+            } catch (error) {
+                statsDiv.innerHTML = `
+                    <div class="alert alert-error">
+                        <strong>加载失败：</strong>${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        // 显示统计信息
+        function displayStats(data) {
+            const statsDiv = document.getElementById('statsContent');
+            
+            let html = `
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">${data.milvus_stats.num_entities || 0}</div>
+                        <div class="stat-label">文档块总数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${data.pdf_files_count}</div>
+                        <div class="stat-label">PDF文件数量</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${data.config.dimension}</div>
+                        <div class="stat-label">向量维度</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${data.milvus_stats.has_index ? '✅' : '❌'}</div>
+                        <div class="stat-label">索引状态</div>
+                    </div>
+                </div>
+                
+                <div class="result-item">
+                    <h4 style="margin-bottom: 15px; color: #374151;">📊 详细统计</h4>
+                    <div class="result-content">
+                        <p><strong>集合名称：</strong>${data.milvus_stats.name || 'N/A'}</p>
+                        <p><strong>集合描述：</strong>${data.milvus_stats.description || 'N/A'}</p>
+                        <p><strong>配置信息：</strong>向量维度 ${data.config.dimension}, 集合 ${data.config.collection_name}</p>
+                        <p><strong>最后更新：</strong>${data.timestamp}</p>
+                    </div>
+                </div>
+            `;
+            
+            if (data.pdf_files && data.pdf_files.length > 0) {
+                html += `
+                    <div class="result-item">
+                        <h4 style="margin-bottom: 15px; color: #374151;">📁 PDF文件列表</h4>
+                        <div class="result-content">
+                `;
+                
+                data.pdf_files.forEach(file => {
+                    html += `<p>📄 ${file}</p>`;
+                });
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            }
+            
+            statsDiv.innerHTML = html;
+        }
+
+        // 健康检查
+        async function checkHealth() {
+            try {
+                const response = await fetch('/api/health');
+                const data = await response.json();
+                
+                if (data.status !== 'healthy') {
+                    showAlert('系统状态异常，请检查服务', 'error');
+                }
+            } catch (error) {
+                showAlert('无法连接到服务器', 'error');
+            }
+        }
+
+        // 显示提示信息
+        function showAlert(message, type = 'info') {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.innerHTML = message;
+            
+            // 插入到当前活动标签页的开头
+            const activeTab = document.querySelector('.tab-content.active');
+            activeTab.insertBefore(alertDiv, activeTab.firstChild);
+            
+            // 3秒后自动移除
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.parentNode.removeChild(alertDiv);
+                }
+            }, 3000);
+        }
+
+        // 高亮搜索关键词
+        function highlightQuery(text, query) {
+            if (!query) return text;
+            
+            const regex = new RegExp(`(${query})`, 'gi');
+            return text.replace(regex, '<mark style="background: #fef08a; padding: 2px 4px; border-radius: 3px;">$1</mark>');
+        }
+    </script>
+</body>
+</html>

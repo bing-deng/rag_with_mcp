@@ -1,0 +1,16 @@
+2025-08-01 15:38:18 - PDF_Search_System - INFO - 增强日志系统初始化完成: PDF_Search_System
+2025-08-01 15:38:23 - PDF_Search_System - INFO - [SYSTEM] 开始初始化PDF搜索服务
+2025-08-01 15:38:27 - PDF_Search_System - INFO - [SYSTEM] 所有服务初始化完成
+2025-08-01 15:38:27 - PDF_Search_System - INFO - [SYSTEM] 启动增强版PDF搜索API服务
+2025-08-01 15:38:28 - PDF_Search_System - INFO - 增强日志系统初始化完成: PDF_Search_System
+2025-08-01 15:38:32 - PDF_Search_System - INFO - [SYSTEM] 开始初始化PDF搜索服务
+2025-08-01 15:38:32 - PDF_Search_System - CRITICAL - [SYSTEM] 服务初始化失败 - Exception: <ConnectionConfigException: (code=1, message=Open local milvus failed)>
+2025-08-01 15:38:32 - PDF_Search_System - CRITICAL - [SYSTEM] 服务初始化失败，程序退出
+2025-08-01 15:40:25 - PDF_Search_System - INFO - 增强日志系统初始化完成: PDF_Search_System
+2025-08-01 15:40:32 - PDF_Search_System - INFO - [SYSTEM] 开始初始化PDF搜索服务
+2025-08-01 15:40:38 - PDF_Search_System - INFO - [SYSTEM] 所有服务初始化完成
+2025-08-01 15:40:38 - PDF_Search_System - INFO - [SYSTEM] 启动增强版PDF搜索API服务
+2025-08-01 15:40:38 - PDF_Search_System - INFO - 增强日志系统初始化完成: PDF_Search_System
+2025-08-01 15:40:42 - PDF_Search_System - INFO - [SYSTEM] 开始初始化PDF搜索服务
+2025-08-01 15:40:42 - PDF_Search_System - CRITICAL - [SYSTEM] 服务初始化失败 - Exception: <ConnectionConfigException: (code=1, message=Open local milvus failed)>
+2025-08-01 15:40:42 - PDF_Search_System - CRITICAL - [SYSTEM] 服务初始化失败，程序退出

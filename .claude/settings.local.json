@@ -1,8 +1,26 @@
 {
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "permissions": {
     "allow": [
       "Bash(source:*)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(./web_env/bin/python:*)",
+      "Bash(/Users/dengbingbing/Documents/startup-deng/rag_with_mcp/Milvus/setup_openai.sh)",
+      "Bash(/opt/homebrew/bin/python3:*)",
+      "Bash(curl:*)",
+      "Bash(/Users/dengbingbing/Documents/startup-deng/rag_with_mcp/Milvus/pdf_env/bin/python /Users/dengbingbing/Documents/startup-deng/rag_with_mcp/Milvus/fix_search_issue.py)",
+      "Bash(/Users/dengbingbing/Documents/startup-deng/rag_with_mcp/Milvus/pdf_env/bin/python /Users/dengbingbing/Documents/startup-deng/rag_with_mcp/Milvus/enhanced_pdf_search_api.py)",
+      "Bash(ls:*)",
+      "Bash(cp:*)",
+      "Bash(/Users/dengbingbing/Documents/startup-deng/rag_with_mcp/Milvus/pdf_env/bin/python /Users/dengbingbing/Documents/startup-deng/rag_with_mcp/Milvus/test_api.py)",
+      "Bash(/Users/dengbingbing/Documents/startup-deng/rag_with_mcp/Milvus/pdf_env/bin/python -c \"\nfrom optimized_pdf_processor import OptimizedMilvusManager\nimport os\n# 检查数据库是否有数据\nif os.path.exists(''/Users/dengbingbing/Documents/startup-deng/rag_with_mcp/Milvus/enhanced_milvus.db''):\n    try:\n        manager = OptimizedMilvusManager(use_lite=True, lite_uri=''./enhanced_milvus.db'')\n        stats = manager.get_collection_stats()\n        print(f''数据库状态: {stats.get(\"\"num_entities\"\", 0)} 个实体'')\n    except Exception as e:\n        print(f''数据库检查错误: {e}'')\nelse:\n    print(''数据库文件不存在'')\n\")",
+      "Bash(/Users/dengbingbing/Documents/startup-deng/rag_with_mcp/Milvus/pdf_env/bin/python:*)",
+      "Bash(rm:*)",
+      "Bash(pkill:*)",
+      "Bash(true)",
+      "Bash(find:*)",
+      "Bash(PYTHONPATH=:*)",
+      "Bash(pip3 install:*)"
     ],
     "deny": []
   }
