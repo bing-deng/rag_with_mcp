@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  weaviate:
+    command:
+    - --host
+    - 0.0.0.0
+    - --port
+    - '8080'
+    - --scheme
+    - http
+    image: semitechnologies/weaviate:1.25.5
+    container_name: weaviate-server
+    ports:
+    - "8180:8080"
+    - "50051:50051"
+    volumes:
+    - weaviate_data:/var/lib/weaviate
+    restart: on-failure:0
+    environment:
+      QUERY_DEFAULTS_LIMIT: 25
+      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: 'true'
+      PERSISTENCE_DATA_PATH: '/var/lib/weaviate'
+      DEFAULT_VECTORIZER_MODULE: 'text2vec-transformers'
+      ENABLE_MODULES: 'text2vec-transformers,generative-openai,qna-openai'
+      CLUSTER_HOSTNAME: 'node1'
+      # 关键配置：指向text2vec-transformers服务
+      TRANSFORMERS_INFERENCE_API: 'http://weaviate-text2vec:8080'
+      # 如果您想使用 OpenAI
+      # OPENAI_APIKEY: 'your-openai-api-key'
+    depends_on:
+      - weaviate-text2vec
+
+  weaviate-text2vec:
+    image: semitechnologies/transformers-inference:sentence-transformers-multi-qa-MiniLM-L6-cos-v1
+    container_name: weaviate-text2vec-transformers
+    environment:
+      ENABLE_CUDA: '0'  # 设置为 '1' 如果您有 NVIDIA GPU
+    ports:
+    - "8181:8080"
+    volumes:
+    - transformers_cache:/app/.cache
+    restart: on-failure:0
+
+volumes:
+  weaviate_data:
+  transformers_cache:
+
+networks:
+  default:
+    name: weaviate-network 
