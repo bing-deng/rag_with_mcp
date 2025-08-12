@@ -1,0 +1,17 @@
+# Web框架
+flask==3.0.0
+flask-cors==4.0.0
+
+# PDF处理
+PyPDF2==3.0.1
+pdfplumber==0.10.0
+
+# 向量数据库
+weaviate-client==4.16.6
+
+# 基础依赖 - 修复版本冲突
+boto3==1.35.0
+grpcio==1.67.1
+numpy>=1.21.0
+requests>=2.28.0
+python-dotenv>=1.0.1,<2.0.0 
