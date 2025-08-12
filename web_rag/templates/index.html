@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>智能文档问答系统 - RAG Demo</title>
+    <title>電力設備RAG問答システム - 統一Cohere版</title>
     <style>
         * {
             margin: 0;
@@ -21,224 +21,257 @@
         .container {
             max-width: 1200px;
             margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
         }
 
         .header {
-            text-align: center;
+            background: linear-gradient(45deg, #2c3e50, #3498db);
             color: white;
-            margin-bottom: 30px;
+            padding: 30px;
+            text-align: center;
         }
 
         .header h1 {
-            font-size: 2.5rem;
+            font-size: 2.5em;
             margin-bottom: 10px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
 
-        .header p {
-            font-size: 1.1rem;
+        .subtitle {
+            font-size: 1.2em;
             opacity: 0.9;
+            margin-bottom: 20px;
         }
 
+        .status {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .status.ready { background: #2ecc71; }
+        .status.initializing { background: #f39c12; }
+        .status.error { background: #e74c3c; }
+
         .main-content {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            overflow: hidden;
+            padding: 30px;
         }
 
         .init-section {
-            padding: 30px;
             text-align: center;
-            border-bottom: 1px solid #eee;
-        }
-
-        .init-section h2 {
-            color: #333;
-            margin-bottom: 15px;
+            margin-bottom: 30px;
         }
 
         .init-button {
-            background: #667eea;
+            background: linear-gradient(45deg, #3498db, #2ecc71);
             color: white;
             border: none;
-            padding: 12px 30px;
-            border-radius: 6px;
-            font-size: 1rem;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border-radius: 25px;
             cursor: pointer;
             transition: all 0.3s;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
         }
 
-        .init-button:hover:not(:disabled) {
-            background: #5a6fd8;
+        .init-button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 8px 20px rgba(52, 152, 219, 0.4);
         }
 
         .init-button:disabled {
-            background: #ccc;
+            background: #95a5a6;
             cursor: not-allowed;
-            box-shadow: none;
+            transform: none;
         }
 
-        .status-display {
-            margin-top: 20px;
+        .question-section {
+            margin-bottom: 30px;
+        }
+
+        .test-questions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .test-question-card {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
             padding: 15px;
-            border-radius: 6px;
-            display: none;
+            cursor: pointer;
             transition: all 0.3s;
         }
 
-        .status-display.show {
-            display: block;
+        .test-question-card:hover {
+            border-color: #3498db;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
-        .status-display.loading {
-            background: #e3f2fd;
-            color: #1976d2;
-            border: 1px solid #bbdefb;
+        .question-text {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
         }
 
-        .status-display.success {
-            background: #e8f5e8;
-            color: #2e7d32;
-            border: 1px solid #a5d6a7;
+        .question-meta {
+            font-size: 0.9em;
+            color: #7f8c8d;
         }
 
-        .status-display.error {
-            background: #ffebee;
-            color: #c62828;
-            border: 1px solid #ef9a9a;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 6px;
-            background: #f0f0f0;
-            border-radius: 3px;
-            overflow: hidden;
-            margin-top: 10px;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #667eea, #764ba2);
-            width: 0%;
-            transition: width 0.5s ease;
-        }
-
-        .chat-section {
-            padding: 30px;
-            display: none;
-        }
-
-        .chat-section.show {
-            display: block;
-        }
-
-        .chat-container {
-            max-height: 500px;
-            overflow-y: auto;
-            margin-bottom: 20px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 15px;
-            background: #fafafa;
-        }
-
-        .message {
-            margin-bottom: 20px;
-            padding: 15px;
-            border-radius: 12px;
-            max-width: 85%;
-            animation: fadeInUp 0.3s ease;
-        }
-
-        .message.user {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            margin-left: auto;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-        }
-
-        .message.assistant {
-            background: white;
-            border: 1px solid #ddd;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .message-content {
-            margin-bottom: 10px;
-            line-height: 1.6;
-        }
-
-        .sources {
-            font-size: 0.9rem;
-            opacity: 0.8;
-            border-top: 1px solid rgba(255,255,255,0.2);
-            padding-top: 10px;
-            margin-top: 10px;
-        }
-
-        .message.assistant .sources {
-            border-top-color: #eee;
-            color: #666;
-        }
-
-        .input-section {
+        .input-group {
             display: flex;
             gap: 10px;
-            align-items: stretch;
+            margin-bottom: 20px;
         }
 
         .question-input {
             flex: 1;
-            padding: 12px 15px;
-            border: 2px solid #ddd;
-            border-radius: 6px;
-            font-size: 1rem;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1em;
             outline: none;
-            transition: all 0.3s;
+            transition: border-color 0.3s;
         }
 
         .question-input:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+            border-color: #3498db;
         }
 
         .ask-button {
-            background: #667eea;
+            background: linear-gradient(45deg, #e74c3c, #f39c12);
             color: white;
             border: none;
-            padding: 12px 25px;
-            border-radius: 6px;
-            font-size: 1rem;
+            padding: 15px 25px;
+            border-radius: 10px;
             cursor: pointer;
+            font-size: 1em;
             transition: all 0.3s;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
 
-        .ask-button:hover:not(:disabled) {
-            background: #5a6fd8;
+        .ask-button:hover {
             transform: translateY(-1px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
         }
 
         .ask-button:disabled {
-            background: #ccc;
+            background: #95a5a6;
             cursor: not-allowed;
-            box-shadow: none;
+            transform: none;
+        }
+
+        .results {
+            margin-top: 30px;
+        }
+
+        .answer-card {
+            background: #f8f9fa;
+            border-left: 5px solid #2ecc71;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .answer-content {
+            font-size: 1.1em;
+            line-height: 1.8;
+            color: #2c3e50;
+            white-space: pre-line;
+        }
+
+        .metadata {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .metadata-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            text-align: center;
+        }
+
+        .metadata-label {
+            font-size: 0.9em;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+
+        .metadata-value {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .search-results {
+            margin-top: 20px;
+        }
+
+        .search-result-card {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .result-rank {
+            background: #3498db;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-weight: bold;
+        }
+
+        .result-scores {
+            display: flex;
+            gap: 15px;
+            font-size: 0.9em;
+        }
+
+        .score-item {
+            color: #7f8c8d;
+        }
+
+        .result-content {
+            color: #2c3e50;
+            line-height: 1.6;
         }
 
         .loading {
+            text-align: center;
+            padding: 20px;
+            color: #7f8c8d;
+        }
+
+        .spinner {
             display: inline-block;
             width: 20px;
             height: 20px;
             border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
+            border-top: 3px solid #3498db;
             border-radius: 50%;
             animation: spin 1s linear infinite;
+            margin-right: 10px;
         }
 
         @keyframes spin {
@@ -246,543 +279,303 @@
             100% { transform: rotate(360deg); }
         }
 
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .tech-info {
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            padding: 25px;
-            border-top: 1px solid #eee;
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        .tech-stack {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            flex-wrap: wrap;
-            margin-bottom: 15px;
-        }
-
-        .tech-item {
-            background: white;
-            padding: 10px 16px;
-            border-radius: 20px;
-            border: 1px solid #ddd;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            transition: all 0.3s;
-        }
-
-        .tech-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-
-        .example-questions {
-            margin-top: 20px;
-            text-align: center;
-        }
-
-        .example-questions h4 {
-            margin-bottom: 15px;
-            color: #333;
-            font-size: 1rem;
-        }
-
-        .example-button {
-            background: #f8f9fa;
-            border: 1px solid #ddd;
-            padding: 8px 16px;
-            margin: 5px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: all 0.3s;
-            display: inline-block;
-        }
-
-        .example-button:hover {
-            background: #667eea;
-            color: white;
-            border-color: #667eea;
-            transform: translateY(-1px);
-        }
-
-        .system-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 8px;
-        }
-
-        .stat-item {
-            text-align: center;
-            padding: 10px;
-        }
-
-        .stat-number {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #667eea;
-        }
-
-        .stat-label {
-            font-size: 0.9rem;
-            color: #666;
-            margin-top: 5px;
-        }
-
-        .typing-indicator {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            padding: 10px 15px;
-            background: #f0f0f0;
-            border-radius: 20px;
-            margin: 10px 0;
-        }
-
-        .typing-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #666;
-            animation: typing 1.4s infinite;
-        }
-
-        .typing-dot:nth-child(1) { animation-delay: 0s; }
-        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
-
-        @keyframes typing {
-            0%, 60%, 100% {
-                transform: translateY(0);
-                opacity: 0.3;
-            }
-            30% {
-                transform: translateY(-10px);
-                opacity: 1;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 10px;
-            }
-            
-            .header h1 {
-                font-size: 2rem;
-            }
-            
-            .message {
-                max-width: 95%;
-            }
-            
-            .tech-stack {
-                gap: 10px;
-            }
-            
-            .system-stats {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* 美化滚动条 */
-        .chat-container::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .chat-container::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 3px;
-        }
-
-        .chat-container::-webkit-scrollbar-thumb {
-            background: #667eea;
-            border-radius: 3px;
-        }
-
-        .chat-container::-webkit-scrollbar-thumb:hover {
-            background: #5a6fd8;
+        .hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🤖 智能文档问答系统</h1>
-            <p>基于 AWS Claude + Cohere + Weaviate 的高级 RAG 系统</p>
+            <h1>🔌 電力設備RAG問答システム</h1>
+            <div class="subtitle">統一Cohere RAG - AWS Bedrock統合</div>
+            <div class="status" id="status">未初期化</div>
         </div>
 
         <div class="main-content">
-            <div class="init-section" id="initSection">
-                <h2>📚 系统初始化</h2>
-                <p>点击下方按钮初始化 RAG 系统，系统将自动加载 PDF 文档并创建智能向量数据库</p>
-                <br>
-                <button class="init-button" id="initButton" onclick="initializeSystem()">
-                    🚀 启动智能系统
+            <!-- 初期化セクション -->
+            <div class="init-section">
+                <button class="init-button" id="initButton">
+                    🚀 システム初期化開始
                 </button>
-                
-                <div class="status-display" id="statusDisplay">
-                    <div id="statusMessage">准备初始化...</div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="progressFill"></div>
-                    </div>
-                </div>
-
-                <div class="example-questions">
-                    <h4>💡 系统初始化后，您可以询问这些问题：</h4>
-                    <button class="example-button">这个系统的主要功能是什么？</button>
-                    <button class="example-button">如何使用这个手册？</button>
-                    <button class="example-button">系统有什么特点和优势？</button>
-                    <button class="example-button">操作步骤是怎样的？</button>
-                    <button class="example-button">有哪些注意事项？</button>
-                    <button class="example-button">故障排除方法有哪些？</button>
+                <div id="initMessage" class="loading hidden">
+                    <div class="spinner"></div>
+                    RAGシステムを初期化中...
                 </div>
             </div>
 
-            <div class="chat-section" id="chatSection">
-                <div class="chat-container" id="chatContainer">
-                    <div class="message assistant">
-                        <div class="message-content">
-                            👋 您好！我是您的智能文档助手。我已经学习了您的PDF文档内容，现在可以为您提供专业、准确的问答服务。
-                            <br><br>
-                            💡 <strong>我能做什么：</strong>
-                            <br>• 📖 基于文档内容回答问题
-                            <br>• 🔍 快速检索相关信息
-                            <br>• 💬 提供详细的操作指导
-                            <br>• 🎯 针对性的技术支持
-                            <br><br>
-                            请随时向我提问！
-                        </div>
-                    </div>
+            <!-- 質問セクション -->
+            <div class="question-section hidden" id="questionSection">
+                <h3>🧪 テスト質問（クリックで選択）</h3>
+                <div class="test-questions" id="testQuestions">
+                    <!-- 动态加载 -->
                 </div>
 
-                <div class="input-section">
+                <h3>💬 カスタム質問</h3>
+                <div class="input-group">
                     <input 
                         type="text" 
-                        id="questionInput" 
                         class="question-input" 
-                        placeholder="请输入您的问题，我会基于文档内容为您解答..." 
-                        onkeypress="handleKeyPress(event)"
+                        id="questionInput" 
+                        placeholder="電圧調査について質問してください..."
+                        autocomplete="off"
                     >
-                    <button class="ask-button" id="askButton" onclick="askQuestion()">
-                        💬 提问
-                    </button>
-                </div>
-
-                <div class="system-stats" id="systemStats" style="display: none;">
-                    <div class="stat-item">
-                        <div class="stat-number" id="docCount">0</div>
-                        <div class="stat-label">文档片段</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number" id="queryCount">0</div>
-                        <div class="stat-label">查询次数</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number" id="avgResponse">0s</div>
-                        <div class="stat-label">平均响应时间</div>
-                    </div>
+                    <button class="ask-button" id="askButton">質問する</button>
                 </div>
             </div>
 
-            <div class="tech-info">
-                <div class="tech-stack">
-                    <div class="tech-item">🧠 AWS Claude 4</div>
-                    <div class="tech-item">📊 Cohere Embeddings</div>
-                    <div class="tech-item">🗄️ Weaviate Vector DB</div>
-                    <div class="tech-item">🌐 Flask + JavaScript</div>
-                    <div class="tech-item">📄 PDF Processing</div>
-                    <div class="tech-item">🔍 Semantic Search</div>
-                </div>
-                <div style="text-align: center; margin-top: 15px; color: #888;">
-                    <small>Powered by Advanced RAG Architecture | 智能检索增强生成系统</small>
-                </div>
+            <!-- 結果セクション -->
+            <div class="results hidden" id="results">
+                <!-- 动态内容 -->
             </div>
         </div>
     </div>
 
     <script>
-        let isInitialized = false;
-        let isAsking = false;
-        let queryCount = 0;
-        let totalResponseTime = 0;
+        let systemReady = false;
+        let testQuestions = [];
 
-        function initializeSystem() {
-            const button = document.getElementById('initButton');
-            const statusDisplay = document.getElementById('statusDisplay');
-            const statusMessage = document.getElementById('statusMessage');
-            
-            button.disabled = true;
-            button.innerHTML = '<div class="loading"></div> 正在启动...';
-            
-            statusDisplay.className = 'status-display show loading';
-            statusMessage.textContent = '🚀 正在启动智能系统...';
-            
-            fetch('/api/init', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    checkInitStatus();
-                } else {
-                    showError(data.message);
-                }
-            })
-            .catch(error => {
-                showError('网络连接错误: ' + error.message);
-            });
-        }
-
-        function checkInitStatus() {
-            fetch('/api/status')
-            .then(response => response.json())
-            .then(data => {
-                const statusDisplay = document.getElementById('statusDisplay');
-                const statusMessage = document.getElementById('statusMessage');
-                const progressFill = document.getElementById('progressFill');
-                const button = document.getElementById('initButton');
-                
-                progressFill.style.width = data.progress + '%';
-                statusMessage.textContent = data.message;
-                
-                if (data.status === 'completed') {
-                    statusDisplay.className = 'status-display show success';
-                    statusMessage.innerHTML = '✅ ' + data.message + '<br>🎉 系统已准备就绪，开始您的智能问答之旅！';
-                    button.innerHTML = '✅ 系统已就绪';
-                    isInitialized = true;
-                    
-                    setTimeout(() => {
-                        document.getElementById('initSection').style.display = 'none';
-                        document.getElementById('chatSection').className = 'chat-section show';
-                        document.getElementById('systemStats').style.display = 'grid';
-                        document.getElementById('questionInput').focus();
-                    }, 3000);
-                    
-                } else if (data.status === 'error') {
-                    statusDisplay.className = 'status-display show error';
-                    statusMessage.innerHTML = '❌ ' + data.message + '<br>请检查系统配置后重试';
-                    button.disabled = false;
-                    button.innerHTML = '🔄 重新初始化';
-                    
-                } else {
-                    // 继续检查状态
-                    setTimeout(checkInitStatus, 2000);
-                }
-            })
-            .catch(error => {
-                showError('状态检查失败: ' + error.message);
-            });
-        }
-
-        function showError(message) {
-            const statusDisplay = document.getElementById('statusDisplay');
-            const statusMessage = document.getElementById('statusMessage');
-            const button = document.getElementById('initButton');
-            
-            statusDisplay.className = 'status-display show error';
-            statusMessage.innerHTML = '❌ ' + message;
-            button.disabled = false;
-            button.innerHTML = '🔄 重新初始化';
-        }
-
-        function askQuestion() {
-            if (!isInitialized || isAsking) return;
-            
-            const input = document.getElementById('questionInput');
-            const question = input.value.trim();
-            
-            if (!question) {
-                input.focus();
-                return;
-            }
-            
-            const button = document.getElementById('askButton');
-            const chatContainer = document.getElementById('chatContainer');
-            
-            // 添加用户消息
-            addMessage('user', question);
-            
-            // 添加加载指示器
-            const typingIndicator = addTypingIndicator();
-            
-            // 清空输入框
-            input.value = '';
-            
-            // 设置按钮状态
-            isAsking = true;
-            button.disabled = true;
-            button.innerHTML = '<div class="loading"></div> AI思考中...';
-            
-            const startTime = Date.now();
-            
-            // 发送请求
-            fetch('/api/query', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ question: question })
-            })
-            .then(response => response.json())
-            .then(data => {
-                // 移除加载指示器
-                if (typingIndicator) {
-                    typingIndicator.remove();
-                }
-                
-                if (data.success) {
-                    const result = data.data;
-                    let sourcesText = '';
-                    
-                    if (result.sources && result.sources.length > 0) {
-                        sourcesText = `\n\n📚 参考了 ${result.source_count} 个文档片段，置信度较高`;
-                    }
-                    
-                    addMessage('assistant', result.answer + sourcesText);
-                    
-                    // 更新统计信息
-                    updateStats(startTime);
-                } else {
-                    addMessage('assistant', '❌ ' + data.message);
-                }
-            })
-            .catch(error => {
-                // 移除加载指示器
-                if (typingIndicator) {
-                    typingIndicator.remove();
-                }
-                addMessage('assistant', '❌ 网络连接错误: ' + error.message + '\n\n请检查网络连接后重试。');
-            })
-            .finally(() => {
-                isAsking = false;
-                button.disabled = false;
-                button.innerHTML = '💬 提问';
-                input.focus();
-            });
-        }
-
-        function addMessage(type, content) {
-            const chatContainer = document.getElementById('chatContainer');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${type}`;
-            
-            const contentDiv = document.createElement('div');
-            contentDiv.className = 'message-content';
-            contentDiv.innerHTML = formatMessage(content);
-            
-            messageDiv.appendChild(contentDiv);
-            chatContainer.appendChild(messageDiv);
-            
-            // 滚动到底部
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
-
-        function addTypingIndicator() {
-            const chatContainer = document.getElementById('chatContainer');
-            const typingDiv = document.createElement('div');
-            typingDiv.className = 'message assistant typing-message';
-            
-            const indicatorDiv = document.createElement('div');
-            indicatorDiv.className = 'typing-indicator';
-            indicatorDiv.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
-            
-            typingDiv.appendChild(indicatorDiv);
-            chatContainer.appendChild(typingDiv);
-            
-            // 滚动到底部
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-            
-            return typingDiv;
-        }
-
-        function formatMessage(text) {
-            // 格式化消息：换行、加粗等
-            return text
-                .replace(/\n/g, '<br>')
-                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                .replace(/\*(.*?)\*/g, '<em>$1</em>');
-        }
-
-        function updateStats(startTime) {
-            queryCount++;
-            const responseTime = (Date.now() - startTime) / 1000;
-            totalResponseTime += responseTime;
-            const avgResponseTime = totalResponseTime / queryCount;
-            
-            document.getElementById('queryCount').textContent = queryCount;
-            document.getElementById('avgResponse').textContent = avgResponseTime.toFixed(1) + 's';
-        }
-
-        function handleKeyPress(event) {
-            if (event.key === 'Enter' && !event.shiftKey) {
-                event.preventDefault();
-                askQuestion();
-            }
-        }
-
-        // 示例问题点击事件
+        // 初期化
         document.addEventListener('DOMContentLoaded', function() {
-            const exampleButtons = document.querySelectorAll('.example-button');
-            exampleButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    if (isInitialized) {
-                        document.getElementById('questionInput').value = this.textContent;
-                        document.getElementById('chatSection').scrollIntoView({ behavior: 'smooth' });
-                        setTimeout(() => {
-                            document.getElementById('questionInput').focus();
-                        }, 500);
+            checkSystemStatus();
+            loadTestQuestions();
+            
+            document.getElementById('initButton').addEventListener('click', initializeSystem);
+            document.getElementById('askButton').addEventListener('click', askQuestion);
+            document.getElementById('questionInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    askQuestion();
+                }
+            });
+        });
+
+        // システム状態確認
+        async function checkSystemStatus() {
+            try {
+                const response = await fetch('/api/status');
+                const data = await response.json();
+                
+                if (data.ready) {
+                    updateSystemStatus('ready', 'システム準備完了');
+                    showQuestionSection();
+                }
+            } catch (error) {
+                console.error('Status check error:', error);
+            }
+        }
+
+        // テスト質問読み込み
+        async function loadTestQuestions() {
+            try {
+                const response = await fetch('/api/test_questions');
+                const data = await response.json();
+                testQuestions = data.test_questions;
+                renderTestQuestions();
+            } catch (error) {
+                console.error('Test questions load error:', error);
+            }
+        }
+
+        // テスト質問レンダリング
+        function renderTestQuestions() {
+            const container = document.getElementById('testQuestions');
+            container.innerHTML = '';
+            
+            testQuestions.forEach(q => {
+                const card = document.createElement('div');
+                card.className = 'test-question-card';
+                card.onclick = () => selectTestQuestion(q.question);
+                
+                card.innerHTML = `
+                    <div class="question-text">${q.question}</div>
+                    <div class="question-meta">
+                        カテゴリ: ${q.category} | 期待タイプ: ${q.expected_type}
+                    </div>
+                `;
+                
+                container.appendChild(card);
+            });
+        }
+
+        // テスト質問選択
+        function selectTestQuestion(question) {
+            document.getElementById('questionInput').value = question;
+        }
+
+        // システム初期化
+        async function initializeSystem() {
+            const button = document.getElementById('initButton');
+            const message = document.getElementById('initMessage');
+            
+            button.disabled = true;
+            message.classList.remove('hidden');
+            updateSystemStatus('initializing', '初期化中...');
+            
+            try {
+                const response = await fetch('/api/init', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
                     }
                 });
-            });
-        });
-
-        // 页面加载时检查系统状态
-        window.addEventListener('load', function() {
-            fetch('/api/health')
-            .then(response => response.json())
-            .then(data => {
-                if (data.rag_ready) {
-                    isInitialized = true;
-                    document.getElementById('initSection').style.display = 'none';
-                    document.getElementById('chatSection').className = 'chat-section show';
-                    document.getElementById('systemStats').style.display = 'grid';
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateSystemStatus('ready', 'システム準備完了');
+                    showQuestionSection();
+                    message.classList.add('hidden');
+                } else {
+                    updateSystemStatus('error', data.message);
+                    button.disabled = false;
+                    message.classList.add('hidden');
                 }
-            })
-            .catch(error => {
-                console.log('系统健康检查失败:', error);
-            });
-        });
+                
+            } catch (error) {
+                updateSystemStatus('error', 'ネットワークエラー');
+                button.disabled = false;
+                message.classList.add('hidden');
+            }
+        }
 
-        // 添加一些交互效果
-        document.addEventListener('DOMContentLoaded', function() {
-            // 输入框焦点效果
+        // システム状態更新
+        function updateSystemStatus(status, message) {
+            const statusElement = document.getElementById('status');
+            statusElement.className = `status ${status}`;
+            statusElement.textContent = message;
+            systemReady = (status === 'ready');
+        }
+
+        // 質問セクション表示
+        function showQuestionSection() {
+            document.getElementById('questionSection').classList.remove('hidden');
+        }
+
+        // 質問送信
+        async function askQuestion() {
+            if (!systemReady) {
+                alert('システムがまだ準備できていません。');
+                return;
+            }
+
             const questionInput = document.getElementById('questionInput');
-            questionInput.addEventListener('focus', function() {
-                this.parentElement.style.transform = 'scale(1.02)';
-            });
+            const question = questionInput.value.trim();
             
-            questionInput.addEventListener('blur', function() {
-                this.parentElement.style.transform = 'scale(1)';
-            });
-        });
+            if (!question) {
+                alert('質問を入力してください。');
+                return;
+            }
+
+            const askButton = document.getElementById('askButton');
+            askButton.disabled = true;
+            askButton.textContent = '処理中...';
+            
+            showLoading();
+
+            try {
+                const response = await fetch('/api/ask', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ question: question })
+                });
+
+                const data = await response.json();
+                displayResults(data, question);
+
+            } catch (error) {
+                displayError('ネットワークエラーが発生しました。');
+            } finally {
+                askButton.disabled = false;
+                askButton.textContent = '質問する';
+            }
+        }
+
+        // ローディング表示
+        function showLoading() {
+            const results = document.getElementById('results');
+            results.classList.remove('hidden');
+            results.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    AIが回答を生成中...
+                </div>
+            `;
+        }
+
+        // 結果表示
+        function displayResults(data, question) {
+            const results = document.getElementById('results');
+            
+            if (!data.success) {
+                results.innerHTML = `
+                    <div class="answer-card" style="border-left-color: #e74c3c;">
+                        <h3>❌ エラー</h3>
+                        <div class="answer-content">${data.message}</div>
+                    </div>
+                `;
+                return;
+            }
+
+            let searchResultsHtml = '';
+            if (data.search_results && data.search_results.length > 0) {
+                searchResultsHtml = `
+                    <div class="search-results">
+                        <h4>🔍 検索結果詳細</h4>
+                        ${data.search_results.map(result => `
+                            <div class="search-result-card">
+                                <div class="result-header">
+                                    <div class="result-rank">第${result.rank}位</div>
+                                    <div class="result-scores">
+                                        <span class="score-item">相似度: ${result.similarity.toFixed(3)}</span>
+                                        <span class="score-item">完整性: ${result.completeness_score}/4</span>
+                                        <span class="score-item">総合: ${result.total_score.toFixed(3)}</span>
+                                    </div>
+                                </div>
+                                <div class="result-content">${result.content_preview}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            results.innerHTML = `
+                <div class="answer-card">
+                    <h3>💡 回答</h3>
+                    <div class="answer-content">${data.answer}</div>
+                </div>
+
+                <div class="metadata">
+                    <div class="metadata-item">
+                        <div class="metadata-label">信頼度</div>
+                        <div class="metadata-value">${(data.confidence * 100).toFixed(1)}%</div>
+                    </div>
+                    <div class="metadata-item">
+                        <div class="metadata-label">処理時間</div>
+                        <div class="metadata-value">${data.processing_time.toFixed(2)}秒</div>
+                    </div>
+                    <div class="metadata-item">
+                        <div class="metadata-label">検索結果数</div>
+                        <div class="metadata-value">${data.search_results.length}件</div>
+                    </div>
+                </div>
+
+                ${searchResultsHtml}
+            `;
+        }
+
+        // エラー表示
+        function displayError(message) {
+            const results = document.getElementById('results');
+            results.classList.remove('hidden');
+            results.innerHTML = `
+                <div class="answer-card" style="border-left-color: #e74c3c;">
+                    <h3>❌ エラー</h3>
+                    <div class="answer-content">${message}</div>
+                </div>
+            `;
+        }
     </script>
 </body>
 </html> 

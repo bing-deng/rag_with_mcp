@@ -1,152 +1,188 @@
+#!/usr/bin/env python3
 """
-Flask Web应用 - RAG系统的Web界面
+Web RAG应用 - 基于成功的统一Cohere RAG系统
 """
 from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
+import sys
 import os
-import threading
-import time
-from rag_service import WebRAGService
-from dotenv import load_dotenv
 
-# 加载环境变量
-load_dotenv()
+# パス設定
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, project_root)
+
+from cohere_unified_rag import CohereUnifiedRAGService
 
 app = Flask(__name__)
 CORS(app)
 
-# 全局RAG服务实例
+# グローバルRAGサービス
 rag_service = None
-initialization_status = {"status": "not_started", "message": "", "progress": 0}
-
-def initialize_rag_service():
-    """后台初始化RAG服务"""
-    global rag_service, initialization_status
-    
-    try:
-        initialization_status["status"] = "initializing"
-        initialization_status["message"] = "正在启动RAG服务..."
-        initialization_status["progress"] = 10
-        
-        # 初始化服务
-        rag_service = WebRAGService()
-        initialization_status["progress"] = 30
-        
-        # PDF文件路径
-        pdf_path = os.path.join(os.path.dirname(__file__), "../bedrock/pdf/high_takusoukun_web_manual_separate.pdf")
-        
-        initialization_status["message"] = "正在处理PDF文档..."
-        initialization_status["progress"] = 50
-        
-        # 初始化知识库
-        if rag_service.initialize_knowledge_base(pdf_path):
-            initialization_status["status"] = "completed"
-            initialization_status["message"] = "RAG系统初始化完成!"
-            initialization_status["progress"] = 100
-        else:
-            initialization_status["status"] = "error"
-            initialization_status["message"] = "知识库初始化失败"
-            
-    except Exception as e:
-        initialization_status["status"] = "error"
-        initialization_status["message"] = f"初始化出错: {str(e)}"
-        print(f"初始化出错: {e}")
-        import traceback
-        traceback.print_exc()
+service_ready = False
 
 @app.route('/')
 def index():
-    """主页"""
+    """メインページ"""
     return render_template('index.html')
 
 @app.route('/api/init', methods=['POST'])
-def init_system():
-    """启动系统初始化"""
-    global initialization_status
-    
-    if initialization_status["status"] in ["not_started", "error"]:
-        initialization_status = {"status": "not_started", "message": "", "progress": 0}
-        
-        # 在后台线程中初始化
-        thread = threading.Thread(target=initialize_rag_service)
-        thread.daemon = True
-        thread.start()
-        
-        return jsonify({"success": True, "message": "开始初始化RAG系统"})
-    else:
-        return jsonify({"success": False, "message": "系统已在初始化中或已完成"})
-
-@app.route('/api/status', methods=['GET'])
-def get_status():
-    """获取系统状态"""
-    return jsonify(initialization_status)
-
-@app.route('/api/query', methods=['POST'])
-def query():
-    """处理用户查询"""
-    global rag_service
-    
-    if not rag_service or initialization_status["status"] != "completed":
-        return jsonify({
-            "success": False, 
-            "message": "系统尚未初始化完成，请先初始化系统"
-        })
+def initialize_service():
+    """RAGサービス初期化"""
+    global rag_service, service_ready
     
     try:
+        print("🔧 RAGサービス初期化開始...")
+        
+        # サービス作成
+        rag_service = CohereUnifiedRAGService()
+        
+        # PDFナレッジベース読み込み
+        pdf_path = "../bedrock/pdf/high_takusoukun_web_manual_separate.pdf"
+        success = rag_service.load_pdf_knowledge(pdf_path)
+        
+        if success:
+            service_ready = True
+            print("✅ Webサービス準備完了")
+            return jsonify({
+                'success': True,
+                'message': '電力設備RAGシステムが正常に初期化されました。',
+                'status': 'ready'
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'ナレッジベースの読み込みに失敗しました。',
+                'status': 'error'
+            })
+            
+    except Exception as e:
+        print(f"❌ 初期化エラー: {str(e)}")
+        return jsonify({
+            'success': False,
+            'message': f'初期化中にエラーが発生しました: {str(e)}',
+            'status': 'error'
+        })
+
+@app.route('/api/ask', methods=['POST'])
+def ask_question():
+    """質問応答API"""
+    global rag_service, service_ready
+    
+    try:
+        if not service_ready or not rag_service:
+            return jsonify({
+                'success': False,
+                'message': 'サービスが初期化されていません。',
+                'answer': '',
+                'confidence': 0,
+                'search_results': []
+            })
+        
         data = request.get_json()
         question = data.get('question', '').strip()
         
         if not question:
             return jsonify({
-                "success": False,
-                "message": "请输入问题"
+                'success': False,
+                'message': '質問を入力してください。',
+                'answer': '',
+                'confidence': 0,
+                'search_results': []
             })
         
-        # 执行RAG查询
-        result = rag_service.query(question, top_k=3)
+        print(f"🔍 Web質問受信: '{question}'")
+        
+        # RAG処理実行
+        result = rag_service.ask_question(question)
+        
+        # 検索結果を整理（Webクライアント用）
+        formatted_results = []
+        for i, doc in enumerate(result['search_results'], 1):
+            formatted_results.append({
+                'rank': i,
+                'content_preview': doc.get('content', '')[:200] + '...',
+                'similarity': doc.get('similarity', 0),
+                'completeness_score': doc.get('completeness_score', 0),
+                'total_score': doc.get('total_score', 0)
+            })
         
         return jsonify({
-            "success": True,
-            "data": {
-                "question": result["question"],
-                "answer": result["answer"],
-                "sources": [
-                    {
-                        "title": doc.get("title", "未知标题"),
-                        "content": doc["content"][:200] + "..." if len(doc["content"]) > 200 else doc["content"],
-                        "certainty": doc.get("certainty", 0),
-                        "source": doc.get("source", "未知来源")
-                    }
-                    for doc in result["sources"]
-                ],
-                "source_count": result["source_count"]
-            }
+            'success': True,
+            'message': '回答が正常に生成されました。',
+            'answer': result['answer'],
+            'confidence': result['confidence'],
+            'processing_time': result['processing_time'],
+            'search_results': formatted_results
         })
         
     except Exception as e:
-        print(f"查询出错: {e}")
-        import traceback
-        traceback.print_exc()
-        
+        print(f"❌ 質問応答エラー: {str(e)}")
         return jsonify({
-            "success": False,
-            "message": f"查询处理出错: {str(e)}"
+            'success': False,
+            'message': f'質問処理中にエラーが発生しました: {str(e)}',
+            'answer': '',
+            'confidence': 0,
+            'search_results': []
         })
 
-@app.route('/api/health', methods=['GET'])
-def health():
-    """健康检查"""
+@app.route('/api/status', methods=['GET'])
+def get_status():
+    """サービス状態確認"""
+    global service_ready
+    
     return jsonify({
-        "status": "ok",
-        "rag_ready": rag_service is not None and initialization_status["status"] == "completed"
+        'ready': service_ready,
+        'status': 'ready' if service_ready else 'not_initialized'
+    })
+
+@app.route('/api/test_questions', methods=['GET'])  
+def get_test_questions():
+    """テスト質問リスト"""
+    test_questions = [
+        {
+            'id': 1,
+            'question': '電圧調査では、どの4つの情報を優先的に収集すべきですか？',
+            'category': '電圧調査',
+            'expected_type': '4項目リスト'
+        },
+        {
+            'id': 2,
+            'question': '電圧調査について教えてください',
+            'category': '電圧調査',
+            'expected_type': '概要説明'
+        },
+        {
+            'id': 3, 
+            'question': '電圧異常調査での記入ポイントは何ですか？',
+            'category': '電圧調査',
+            'expected_type': '記入要点'
+        },
+        {
+            'id': 4,
+            'question': '電柱番号の例を教えてください',
+            'category': '電柱情報',
+            'expected_type': '具体例'
+        },
+        {
+            'id': 5,
+            'question': '計器番号について説明してください',
+            'category': '計測器',
+            'expected_type': '説明'
+        }
+    ]
+    
+    return jsonify({
+        'test_questions': test_questions
     })
 
 if __name__ == '__main__':
-    print("🌐 启动RAG Web应用...")
-    print("请在浏览器中访问: http://localhost:5001")
-    print("确保已设置AWS环境变量:")
-    print("  export AWS_ACCESS_KEY_ID=your_key")
-    print("  export AWS_SECRET_ACCESS_KEY=your_secret")
-    print("  export AWS_DEFAULT_REGION=ap-northeast-1")
+    print("🌐 RAG Webサービス開始...")
+    print("📖 ブラウザで http://localhost:5000 にアクセスしてください")
+    print("🎯 統一Cohere RAGシステム搭載")
     
-    app.run(debug=True, host='0.0.0.0', port=5002)
+    try:
+        app.run(debug=True, host='0.0.0.0', port=5002)
+    finally:
+        # クリーンアップ
+        if rag_service:
+            rag_service.close()

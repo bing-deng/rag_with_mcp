@@ -193,7 +193,7 @@ class TokyoBedrockService:
             else:
                 print("Claude响应格式异常")
                 return None
-                
+            
         except ClientError as e:
             print(f"调用Claude时出错: {e}")
             return None
